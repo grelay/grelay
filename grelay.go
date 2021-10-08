@@ -1,7 +1,7 @@
 package grelay
 
 type Grelay interface {
-	Enqueue(string, func() (interface{}, error))
+	Enqueue(string, func() (interface{}, error)) GrelayRequest
 }
 
 type grelayImpl struct {
@@ -14,6 +14,8 @@ func NewGrelay(m map[string]GrelayService) Grelay {
 	}
 }
 
-func (g *grelayImpl) Enqueue(string, func() (interface{}, error)) {
-
+func (g *grelayImpl) Enqueue(string, func() (interface{}, error)) GrelayRequest {
+	return grelayRequestImpl{
+		mapServices: g.mapServices,
+	}
 }
