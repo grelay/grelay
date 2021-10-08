@@ -12,7 +12,7 @@ import (
 
 func TestGrelayRequestEnqueueShouldIncludeInList(t *testing.T) {
 	c := NewGrelayConfig()
-	c = c.WithRetryTimePeriod(1 * time.Microsecond)
+	c = c.WithRetryTimePeriod(500 * time.Millisecond)
 	s := NewGrelayService(c)
 	m := map[string]GrelayService{
 		"test": s,
