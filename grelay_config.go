@@ -26,7 +26,10 @@ func NewGrelayConfig() GrelayConfig {
 	}
 }
 
-// WithRetryTimePeriod sets the retry time period when the state is OPEN
+/* WithRetryTimePeriod sets the retry time period when the state is OPEN.
+
+ATTENTION: Do not put a really short time (EX: 1 microsecond) to not lock a lot your application
+*/
 func (c GrelayConfig) WithRetryTimePeriod(t time.Duration) GrelayConfig {
 	c.retryTimePeriod = t
 	return c
