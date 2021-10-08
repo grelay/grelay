@@ -1,5 +1,7 @@
 package grelay
 
+import "sync"
+
 type Grelay interface {
 	Enqueue(string, func() (interface{}, error)) GrelayRequest
 }
@@ -14,8 +16,11 @@ func NewGrelay(m map[string]GrelayService) Grelay {
 	}
 }
 
-func (g *grelayImpl) Enqueue(string, func() (interface{}, error)) GrelayRequest {
-	return grelayRequestImpl{
+func (g *grelayImpl) Enqueue(s string, f func() (interface{}, error)) GrelayRequest {
+	gr := grelayRequestImpl{
 		mapServices: g.mapServices,
+		mu:          &sync.RWMutex{},
 	}
+	grEnqueued := gr.Enqueue(s, f)
+	return grEnqueued
 }
