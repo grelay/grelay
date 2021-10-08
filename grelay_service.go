@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Grelay interface {
+type GrelayService interface {
 	Exec(func() (interface{}, error)) (interface{}, error)
 }
 
@@ -23,7 +23,7 @@ type callResponse struct {
 	err error
 }
 
-func NewGrelay(c GrelayConfig) Grelay {
+func NewGrelayService(c GrelayConfig) GrelayService {
 	g := &grelayImpl{
 		config: c,
 		state:  closed,
