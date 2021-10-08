@@ -27,7 +27,7 @@ func createGrelayService(t time.Duration, err error) GrelayChecker {
 
 func TestExecWithClosedState(t *testing.T) {
 	c := NewGrelayConfig()
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 0,
@@ -42,7 +42,7 @@ func TestExecWithClosedState(t *testing.T) {
 
 func TestExecWithOpenState(t *testing.T) {
 	c := NewGrelayConfig()
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 0,
@@ -57,7 +57,7 @@ func TestExecWithOpenState(t *testing.T) {
 
 func TestExecWithHalfOpenState(t *testing.T) {
 	c := NewGrelayConfig()
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    halfOpen,
 		currentServiceThreshould: 0,
@@ -73,7 +73,7 @@ func TestExecWithHalfOpenState(t *testing.T) {
 func TestExecWithClosedStateWithCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
 	c := NewGrelayConfig()
 	c = c.WithServiceThreshould(5)
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 6,
@@ -90,7 +90,7 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldLessTha
 	c := NewGrelayConfig()
 	c = c.WithServiceThreshould(5)
 	c = c.WithServiceTimeout(5 * time.Microsecond)
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 3,
@@ -110,7 +110,7 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 	c := NewGrelayConfig()
 	c = c.WithServiceThreshould(5)
 	c = c.WithServiceTimeout(5 * time.Microsecond)
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 4,
@@ -129,7 +129,7 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 func TestMonitoringWhenStateClosedShouldDoNothing(t *testing.T) {
 	c := NewGrelayConfig()
 	c = c.WithRetryTimePeriod(5 * time.Microsecond)
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 3,
@@ -145,7 +145,7 @@ func TestMonitoringWhenStateOpenAndPingSuccedShouldHaveClosedState(t *testing.T)
 	c := NewGrelayConfig()
 	c = c.WithGrelayService(s)
 
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
@@ -160,7 +160,7 @@ func TestMonitoringWhenStateOpenAndPingAndTimeoutDoesNotHaveTimeToAnswerShouldHa
 	c := NewGrelayConfig()
 	c = c.WithGrelayService(s)
 
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
@@ -177,7 +177,7 @@ func TestMonitoringWhenStateOpenAndPingFailedShouldHaveOpenState(t *testing.T) {
 	c := NewGrelayConfig()
 	c = c.WithGrelayService(s)
 
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
@@ -194,7 +194,7 @@ func TestMonitoringWhenStateOpenAndTimeoutOccurredShouldHaveOpenState(t *testing
 	c = c.WithGrelayService(s)
 	c = c.WithServiceTimeout(5 * time.Microsecond)
 
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,

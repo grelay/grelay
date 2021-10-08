@@ -10,7 +10,7 @@ type GrelayService interface {
 	Exec(func() (interface{}, error)) (interface{}, error)
 }
 
-type grelayImpl struct {
+type grelayServiceImpl struct {
 	config                   GrelayConfig
 	currentServiceThreshould int64
 	state                    state
@@ -24,7 +24,7 @@ type callResponse struct {
 }
 
 func NewGrelayService(c GrelayConfig) GrelayService {
-	g := &grelayImpl{
+	g := &grelayServiceImpl{
 		config: c,
 		state:  closed,
 	}
@@ -32,7 +32,7 @@ func NewGrelayService(c GrelayConfig) GrelayService {
 	return g
 }
 
-func (g *grelayImpl) Exec(f func() (interface{}, error)) (interface{}, error) {
+func (g *grelayServiceImpl) Exec(f func() (interface{}, error)) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
 	defer cancel()
 
@@ -63,7 +63,7 @@ func (g *grelayImpl) Exec(f func() (interface{}, error)) (interface{}, error) {
 	}
 }
 
-func (g *grelayImpl) makeCall(f func() (interface{}, error), c chan<- callResponse) {
+func (g *grelayServiceImpl) makeCall(f func() (interface{}, error), c chan<- callResponse) {
 	g.mu.RLock()
 	if string(g.state) == string(open) || string(g.state) == string(halfOpen) {
 		g.mu.RUnlock()
@@ -86,13 +86,13 @@ func (g *grelayImpl) makeCall(f func() (interface{}, error), c chan<- callRespon
 	c <- callResponse{i, err}
 }
 
-func (g *grelayImpl) monitoring() {
+func (g *grelayServiceImpl) monitoring() {
 	for range time.Tick(g.config.retryTimePeriod) {
 		g.monitoringState()
 	}
 }
 
-func (g *grelayImpl) monitoringState() {
+func (g *grelayServiceImpl) monitoringState() {
 	g.mu.RLock()
 	if string(g.state) == string(closed) {
 		g.mu.RUnlock()
@@ -131,7 +131,7 @@ func (g *grelayImpl) monitoringState() {
 	}
 }
 
-func (g *grelayImpl) checkService(c chan<- bool) {
+func (g *grelayServiceImpl) checkService(c chan<- bool) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
 	if err := g.config.service.Ping(); err != nil {
