@@ -18,7 +18,7 @@ func (g *grelayServiceTest) Ping() error {
 	return g.err
 }
 
-func createGrelayService(t time.Duration, err error) GrelayService {
+func createGrelayService(t time.Duration, err error) GrelayChecker {
 	return &grelayServiceTest{
 		t:   t,
 		err: err,
@@ -125,18 +125,6 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 	assert.Equal(t, int64(5), g.currentServiceThreshould)
 	assert.EqualError(t, err, ErrGrelayServiceTimedout.Error())
 }
-
-/*
-* monitoring:
-
-- quando state = closed -> não faz nada (OK)
-- quando state = open && Ping succed -> state = closed && currentServiceThreshould = 0 (OK)
-- quando state = open && Não chama o Done nem o Ping -> state = halfClosed (OK)
-- quando state = open && Ping falha -> state = open && currentServiceThreshould = currentServiceThreshould (OK)
-- quando state = open && ainda ocorre o timeout -> state = open && currentServiceThreshould = currentServiceThreshould
-- quando
-
-*/
 
 func TestMonitoringWhenStateClosedShouldDoNothing(t *testing.T) {
 	c := NewGrelayConfig()
