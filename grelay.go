@@ -88,36 +88,55 @@ func (g *grelayImpl) makeCall(f func() (interface{}, error), c chan<- callRespon
 
 func (g *grelayImpl) monitoring() {
 	for range time.Tick(g.config.retryTimePeriod) {
-		g.mu.RLock()
-		if string(g.state) == string(closed) {
-			g.mu.RUnlock()
-			continue
-		}
+		g.monitoringState()
+	}
+}
+
+func (g *grelayImpl) monitoringState() {
+	g.mu.RLock()
+	if string(g.state) == string(closed) {
 		g.mu.RUnlock()
+		return
+	}
+	g.mu.RUnlock()
 
+	g.mu.Lock()
+	g.state = halfOpen
+	g.mu.Unlock()
+
+	checkerChannel := make(chan bool, 1)
+	go g.checkService(checkerChannel)
+
+	ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
+
+	select {
+	case <-ctx.Done():
 		g.mu.Lock()
-		g.state = halfOpen
-
-		ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
-
-		select {
-		case <-ctx.Done():
-
+		g.state = open
+		cancel()
+		g.mu.Unlock()
+		return
+	case ok := <-checkerChannel:
+		g.mu.Lock()
+		defer g.mu.Unlock()
+		if !ok {
 			g.state = open
 			cancel()
-			g.mu.Unlock()
-			continue
-		default:
-			if err := g.config.service.Ping(); err != nil {
-				g.state = open
-				cancel()
-				g.mu.Unlock()
-				continue
-			}
-			g.state = closed
-			g.currentServiceThreshould = 0
-			cancel()
-			g.mu.Unlock()
+			return
 		}
+		g.state = closed
+		g.currentServiceThreshould = 0
+		cancel()
+		return
 	}
+}
+
+func (g *grelayImpl) checkService(c chan<- bool) {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+	if err := g.config.service.Ping(); err != nil {
+		c <- false
+		return
+	}
+	c <- true
 }

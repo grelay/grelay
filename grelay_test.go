@@ -1,11 +1,29 @@
 package grelay
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type grelayServiceTest struct {
+	t   time.Duration
+	err error
+}
+
+func (g *grelayServiceTest) Ping() error {
+	time.Sleep(g.t)
+	return g.err
+}
+
+func createGrelayService(t time.Duration, err error) GrelayService {
+	return &grelayServiceTest{
+		t:   t,
+		err: err,
+	}
+}
 
 func TestExecWithClosedState(t *testing.T) {
 	c := NewGrelayConfig()
@@ -106,4 +124,94 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 	assert.Equal(t, string(open), string(g.state))
 	assert.Equal(t, int64(5), g.currentServiceThreshould)
 	assert.EqualError(t, err, ErrGrelayServiceTimedout.Error())
+}
+
+/*
+* monitoring:
+
+- quando state = closed -> não faz nada (OK)
+- quando state = open && Ping succed -> state = closed && currentServiceThreshould = 0 (OK)
+- quando state = open && Não chama o Done nem o Ping -> state = halfClosed (OK)
+- quando state = open && Ping falha -> state = open && currentServiceThreshould = currentServiceThreshould (OK)
+- quando state = open && ainda ocorre o timeout -> state = open && currentServiceThreshould = currentServiceThreshould
+- quando
+
+*/
+
+func TestMonitoringWhenStateClosedShouldDoNothing(t *testing.T) {
+	c := NewGrelayConfig()
+	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+	g := &grelayImpl{
+		config:                   c,
+		state:                    closed,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, int64(3), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateOpenAndPingSuccedShouldHaveClosedState(t *testing.T) {
+	s := createGrelayService(1*time.Microsecond, nil)
+
+	c := NewGrelayConfig()
+	c = c.WithGrelayService(s)
+
+	g := &grelayImpl{
+		config:                   c,
+		state:                    open,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, int64(0), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateOpenAndPingAndTimeoutDoesNotHaveTimeToAnswerShouldHaveHalfOpenStates(t *testing.T) {
+	s := createGrelayService(5*time.Second, nil)
+	c := NewGrelayConfig()
+	c = c.WithGrelayService(s)
+
+	g := &grelayImpl{
+		config:                   c,
+		state:                    open,
+		currentServiceThreshould: 3,
+	}
+	go g.monitoringState()
+	time.Sleep(5 * time.Millisecond)
+	assert.Equal(t, string(halfOpen), string(g.state))
+	assert.Equal(t, int64(3), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateOpenAndPingFailedShouldHaveOpenState(t *testing.T) {
+	s := createGrelayService(1*time.Microsecond, errors.New("Ping fail"))
+
+	c := NewGrelayConfig()
+	c = c.WithGrelayService(s)
+
+	g := &grelayImpl{
+		config:                   c,
+		state:                    open,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(open), string(g.state))
+	assert.Equal(t, int64(3), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateOpenAndTimeoutOccurredShouldHaveOpenState(t *testing.T) {
+	s := createGrelayService(1*time.Second, nil)
+
+	c := NewGrelayConfig()
+	c = c.WithGrelayService(s)
+	c = c.WithServiceTimeout(5 * time.Microsecond)
+
+	g := &grelayImpl{
+		config:                   c,
+		state:                    open,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(open), string(g.state))
+	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
