@@ -6,6 +6,7 @@ type GrelayConfig struct {
 	retryTimePeriod   time.Duration
 	serviceTimeout    time.Duration
 	serviceThreshould int64
+	service           GrelayService
 }
 
 /* NewGrelayConfig create config for grelay with these values:
@@ -21,6 +22,7 @@ func NewGrelayConfig() GrelayConfig {
 		retryTimePeriod:   10 * time.Second,
 		serviceTimeout:    10 * time.Second,
 		serviceThreshould: 10,
+		service:           nil,
 	}
 }
 
@@ -39,5 +41,11 @@ func (c GrelayConfig) WithServiceTimeout(t time.Duration) GrelayConfig {
 // WithServiceThreshould sets the limit of threshould to change the state to OPEN
 func (c GrelayConfig) WithServiceThreshould(ts int64) GrelayConfig {
 	c.serviceThreshould = ts
+	return c
+}
+
+// WithGrelayService sets the service that is responsible for ping to the server when the state is OPEN
+func (c GrelayConfig) WithGrelayService(service GrelayService) GrelayConfig {
+	c.service = service
 	return c
 }
