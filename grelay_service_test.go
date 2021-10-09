@@ -126,9 +126,61 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 	assert.EqualError(t, err, ErrGrelayServiceTimedout.Error())
 }
 
-func TestMonitoringWhenStateClosedShouldDoNothing(t *testing.T) {
+func TestMonitoringWhenStateClosedAndServiceOKShouldResetThreshould(t *testing.T) {
 	c := NewGrelayConfig()
 	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+
+	s := createGrelayService(1*time.Microsecond, nil)
+	c = c.WithGrelayService(s)
+	g := &grelayServiceImpl{
+		config:                   c,
+		state:                    closed,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, int64(0), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateClosedAndCurrentServiceThreshouldEqualZeroShouldKeepThreshould(t *testing.T) {
+	c := NewGrelayConfig()
+	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+
+	s := createGrelayService(1*time.Microsecond, nil)
+	c = c.WithGrelayService(s)
+	g := &grelayServiceImpl{
+		config:                   c,
+		state:                    closed,
+		currentServiceThreshould: 0,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, int64(0), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateClosedAndServiceNotOKShouldKeepThreshould(t *testing.T) {
+	c := NewGrelayConfig()
+	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+
+	s := createGrelayService(4*time.Microsecond, nil)
+	c = c.WithGrelayService(s)
+	c = c.WithServiceTimeout(2 * time.Microsecond)
+	g := &grelayServiceImpl{
+		config:                   c,
+		state:                    closed,
+		currentServiceThreshould: 3,
+	}
+	g.monitoringState()
+	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, int64(3), g.currentServiceThreshould)
+}
+
+func TestMonitoringWhenStateClosedAndServiceReturningErrorShouldKeepThreshould(t *testing.T) {
+	c := NewGrelayConfig()
+	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+
+	s := createGrelayService(4*time.Microsecond, errors.New("Ping error"))
+	c = c.WithGrelayService(s)
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,

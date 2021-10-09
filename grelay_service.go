@@ -95,6 +95,29 @@ func (g *grelayServiceImpl) monitoring() {
 func (g *grelayServiceImpl) monitoringState() {
 	g.mu.RLock()
 	if string(g.state) == string(closed) {
+		if g.currentServiceThreshould > 0 {
+			g.mu.RUnlock()
+
+			checkerChannel := make(chan bool, 1)
+			go g.checkService(checkerChannel)
+			ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
+
+			select {
+			case <-ctx.Done():
+				cancel()
+				return
+			case ok := <-checkerChannel:
+				if !ok {
+					cancel()
+					return
+				}
+				g.mu.Lock()
+				g.currentServiceThreshould = 0
+				g.mu.Unlock()
+				cancel()
+				return
+			}
+		}
 		g.mu.RUnlock()
 		return
 	}
