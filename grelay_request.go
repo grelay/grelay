@@ -8,8 +8,34 @@ import (
 	"go.uber.org/zap"
 )
 
+// GrelayRequest is an interface responsable to Enqueue and Exec requests
 type GrelayRequest interface {
+	/* Enqueue is responsable to enqueue functions from a specific service in GrelayRequest
+
+	EX:
+
+	gr := grelayRequest.Enqueue("mygrelayservice", func() (interface{}, error) {
+		value, err := myservice.GET("userID")
+		if err != nil {
+			return nil, err
+		}
+		return value, err
+	})
+	*/
 	Enqueue(string, func() (interface{}, error)) GrelayRequest
+
+	/* Exec is responsable to execute requests from GrelayRequest queue.
+
+	EX:
+
+	gr := grelayRequest.Enqueue("mygrelayservice", func() (interface{}, error) {
+		// make request1
+	})
+	gr = grelayRequest.Enqueue("mygrelayservice2", func() (interface{}, error) {
+		// make request2
+	})
+	val, err := gr.Exec()
+	*/
 	Exec() (interface{}, error)
 }
 

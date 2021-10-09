@@ -2,7 +2,20 @@ package grelay
 
 import "sync"
 
+// Grelay is an interface that have Enqueue function
 type Grelay interface {
+	/* Enqueue is responsable to create a GrelayRequest and enqueue functions from a specific service in it.
+
+	EX:
+
+	gr := grelay.Enqueue("mygrelayservice", func() (interface{}, error) {
+		value, err := myservice.GET("userID")
+		if err != nil {
+			return nil, err
+		}
+		return value, err
+	})
+	*/
 	Enqueue(string, func() (interface{}, error)) GrelayRequest
 }
 

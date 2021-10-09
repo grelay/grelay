@@ -2,6 +2,7 @@ package grelay
 
 import "time"
 
+// GrelayConfig is a structure for GrelayService configuration
 type GrelayConfig struct {
 	retryTimePeriod   time.Duration
 	serviceTimeout    time.Duration
