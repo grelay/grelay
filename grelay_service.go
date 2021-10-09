@@ -7,7 +7,7 @@ import (
 )
 
 type GrelayService interface {
-	Exec(func() (interface{}, error)) (interface{}, error)
+	exec(func() (interface{}, error)) (interface{}, error)
 }
 
 type grelayServiceImpl struct {
@@ -32,7 +32,7 @@ func NewGrelayService(c GrelayConfig) GrelayService {
 	return g
 }
 
-func (g *grelayServiceImpl) Exec(f func() (interface{}, error)) (interface{}, error) {
+func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
 	defer cancel()
 

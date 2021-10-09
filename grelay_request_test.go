@@ -56,7 +56,7 @@ func TestGrelayRequestExecWithEmptyQueueShouldReturnErrGrelayAllRequestsOpened(t
 
 func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, nil)
+	sMock.On("exec", mock.Anything).Return(nil, nil)
 
 	m := map[string]GrelayService{
 		"test": sMock,
@@ -74,7 +74,7 @@ func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
 
 func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test": sMock,
@@ -92,10 +92,10 @@ func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllReques
 
 func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
 
 	sMock2 := new(grelayServiceMock)
-	sMock2.On("Exec", mock.Anything).Return(nil, nil)
+	sMock2.On("exec", mock.Anything).Return(nil, nil)
 
 	m := map[string]GrelayService{
 		"test":  sMock,
@@ -115,7 +115,7 @@ func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *t
 
 func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutShouldReturnErrGrelayServiceTimedout(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, ErrGrelayServiceTimedout)
+	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayServiceTimedout)
 
 	m := map[string]GrelayService{
 		"test": sMock,
@@ -133,10 +133,10 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 
 func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
 
 	sMock2 := new(grelayServiceMock)
-	sMock2.On("Exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock2.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test":  sMock,

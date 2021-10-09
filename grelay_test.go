@@ -61,13 +61,13 @@ func TestGrelayEnqueueWithTwoItemsInQueueShouldReturnTwoItems(t *testing.T) {
 
 func TestGrelayEnqueueTwoDifferentGrelays(t *testing.T) {
 	sMock := new(grelayServiceMock)
-	sMock.On("Exec", mock.Anything).Return(nil, nil)
+	sMock.On("exec", mock.Anything).Return(nil, nil)
 
 	sMock2 := new(grelayServiceMock)
-	sMock2.On("Exec", mock.Anything).Return(nil, nil)
+	sMock2.On("exec", mock.Anything).Return(nil, nil)
 
 	sMock3 := new(grelayServiceMock)
-	sMock3.On("Exec", mock.Anything).Return(nil, nil)
+	sMock3.On("exec", mock.Anything).Return(nil, nil)
 
 	m := map[string]GrelayService{
 		"test":  sMock,

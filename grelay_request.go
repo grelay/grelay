@@ -58,7 +58,7 @@ func (gr grelayRequestImpl) Exec() (interface{}, error) {
 	gr.mu.RLock()
 	defer gr.mu.RUnlock()
 	for _, r := range gr.QueueFuncs {
-		value, err := r.service.Exec(r.f)
+		value, err := r.service.exec(r.f)
 		if errors.Is(err, ErrGrelayStateOpened) {
 			continue
 		}

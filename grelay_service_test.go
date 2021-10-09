@@ -32,7 +32,7 @@ func TestExecWithClosedState(t *testing.T) {
 		state:                    closed,
 		currentServiceThreshould: 0,
 	}
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		return nil, nil
 	})
 	assert.Equal(t, string(closed), string(g.state))
@@ -47,7 +47,7 @@ func TestExecWithOpenState(t *testing.T) {
 		state:                    open,
 		currentServiceThreshould: 0,
 	}
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		return nil, nil
 	})
 	assert.Equal(t, string(open), string(g.state))
@@ -62,7 +62,7 @@ func TestExecWithHalfOpenState(t *testing.T) {
 		state:                    halfOpen,
 		currentServiceThreshould: 0,
 	}
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		return nil, nil
 	})
 	assert.Equal(t, string(halfOpen), string(g.state))
@@ -78,7 +78,7 @@ func TestExecWithClosedStateWithCurrentServiceThreshouldGratherThanServiceThresh
 		state:                    closed,
 		currentServiceThreshould: 6,
 	}
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		return nil, nil
 	})
 	assert.Equal(t, string(open), string(g.state))
@@ -96,7 +96,7 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldLessTha
 		currentServiceThreshould: 3,
 	}
 
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		time.Sleep(5 * time.Second)
 		return nil, nil
 	})
@@ -116,7 +116,7 @@ func TestExecWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGrather
 		currentServiceThreshould: 4,
 	}
 
-	_, err := g.Exec(func() (interface{}, error) {
+	_, err := g.exec(func() (interface{}, error) {
 		time.Sleep(5 * time.Second)
 		return nil, nil
 	})
