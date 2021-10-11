@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,3 +20,6 @@ jobs:
 
     - name: Unit Test
       run: go test -v ./...
+    
+    - name: Race Condition Test
+      run: go test ./... -cpu=1,9 -race -count=50 -failfast

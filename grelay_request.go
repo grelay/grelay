@@ -61,7 +61,7 @@ func (gr grelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) Gre
 		sugar := logger.Sugar()
 		gr.mu.RLock()
 		defer gr.mu.RUnlock()
-		sugar.Warn(fmt.Sprintf("grelay no found service with %s key", s), zap.Any("grelay_services", gr.mapServices))
+		sugar.Warn(fmt.Sprintf("grelay not found service with %s key", s), zap.Any("grelay_services", gr.mapServices))
 		return gr
 	}
 
