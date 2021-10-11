@@ -4,19 +4,13 @@ import "sync"
 
 // Grelay is an interface that have Enqueue function
 type Grelay interface {
-	/* Enqueue is responsable to create a GrelayRequest and enqueue functions from a specific service in it.
+	/* CreateRequest is responsable to create a GrelayRequest to enqueue new functions later.
 
 	EX:
 
-	gr := grelay.Enqueue("mygrelayservice", func() (interface{}, error) {
-		value, err := myservice.GET("userID")
-		if err != nil {
-			return nil, err
-		}
-		return value, err
-	})
+	gr := grelay.CreateRequest()
 	*/
-	Enqueue(string, func() (interface{}, error)) GrelayRequest
+	CreateRequest() GrelayRequest
 }
 
 type grelayImpl struct {
@@ -47,11 +41,9 @@ func NewGrelay(m map[string]GrelayService) Grelay {
 	}
 }
 
-func (g *grelayImpl) Enqueue(s string, f func() (interface{}, error)) GrelayRequest {
-	gr := grelayRequestImpl{
+func (g *grelayImpl) CreateRequest() GrelayRequest {
+	return grelayRequestImpl{
 		mapServices: g.mapServices,
 		mu:          &sync.RWMutex{},
 	}
-	grEnqueued := gr.Enqueue(s, f)
-	return grEnqueued
 }
