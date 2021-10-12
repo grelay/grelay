@@ -182,11 +182,11 @@ func TestMonitoringWhenStateClosedAndCurrentServiceThreshouldEqualZeroShouldKeep
 
 func TestMonitoringWhenStateClosedAndServiceNotOKShouldKeepThreshould(t *testing.T) {
 	c := NewGrelayConfig()
-	c = c.WithRetryTimePeriod(5 * time.Microsecond)
+	c = c.WithRetryTimePeriod(7 * time.Millisecond)
 
-	s := createGrelayService(1*time.Millisecond, nil)
+	s := createGrelayService(10*time.Millisecond, nil)
 	c = c.WithGrelayService(s)
-	c = c.WithServiceTimeout(2 * time.Microsecond)
+	c = c.WithServiceTimeout(2 * time.Millisecond)
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    closed,

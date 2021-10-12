@@ -1,7 +1,6 @@
 package grelay
 
 import (
-	"context"
 	"sync"
 	"time"
 )
@@ -37,12 +36,11 @@ func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, er
 	go g.makeCall(f, callDone)
 
 	g.mu.RLock()
-	ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
+	serviceTimeout := g.config.serviceTimeout
 	g.mu.RUnlock()
-	defer cancel()
 
 	select {
-	case <-ctx.Done():
+	case <-time.After(serviceTimeout):
 		g.mu.Lock()
 		g.currentServiceThreshould++
 		g.mu.Unlock()
@@ -61,9 +59,6 @@ func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, er
 
 		return nil, ErrGrelayServiceTimedout
 	case r := <-callDone:
-		if ctx.Err() != nil {
-			return nil, ErrGrelayServiceTimedout
-		}
 		return r.i, r.err
 	}
 }
@@ -108,12 +103,11 @@ func (g *grelayServiceImpl) monitoringState() {
 			go g.checkService(checkerChannel)
 
 			g.mu.RLock()
-			ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
+			serviceTimeout := g.config.serviceTimeout
 			g.mu.RUnlock()
-			defer cancel()
 
 			select {
-			case <-ctx.Done():
+			case <-time.After(serviceTimeout):
 				return
 			case ok := <-checkerChannel:
 				if !ok {
@@ -121,9 +115,6 @@ func (g *grelayServiceImpl) monitoringState() {
 				}
 				g.mu.Lock()
 				defer g.mu.Unlock()
-				if ctx.Err() != nil {
-					return
-				}
 				g.currentServiceThreshould = 0
 				return
 			}
@@ -141,12 +132,11 @@ func (g *grelayServiceImpl) monitoringState() {
 	go g.checkService(checkerChannel)
 
 	g.mu.RLock()
-	ctx, cancel := context.WithTimeout(context.Background(), g.config.serviceTimeout)
+	serviceTimeout := g.config.serviceTimeout
 	g.mu.RUnlock()
-	defer cancel()
 
 	select {
-	case <-ctx.Done():
+	case <-time.After(serviceTimeout):
 		g.mu.Lock()
 		g.state = open
 		g.mu.Unlock()
@@ -154,9 +144,6 @@ func (g *grelayServiceImpl) monitoringState() {
 	case ok := <-checkerChannel:
 		g.mu.Lock()
 		defer g.mu.Unlock()
-		if ctx.Err() != nil {
-			return
-		}
 		if !ok {
 			g.state = open
 			return
