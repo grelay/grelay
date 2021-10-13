@@ -9,9 +9,9 @@ The following is a set of guidelines for contributing to gRelay project. It is i
 
   * [:bug: Reporting bugs](#bug-reporting-bugs)
 
-  * [:bulb: Suggesting an enhancement](#bulb-suggesting-a-feature)
+  * [:bulb: Suggesting an enhancement](#bulb-suggesting-an-enhancement)
 
-  * [:octocat: Code contributtion](#-octocat-code-contributtion)
+  * [:octocat: Code contributtion](#octocat-code-contributtion)
 
 [:art: Styleguides](#art-styleguides)
 
@@ -41,7 +41,7 @@ The following is a set of guidelines for contributing to gRelay project. It is i
 
   * After find out your issue, you can fork the gRelay project and start to develop the solution. Don't forget to [configure your forked project](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/configuring-a-remote-for-a-fork)
 
-  * Before open a Pull Request, run the tests and check if the code is following the [styleguide](#styleguides)
+  * Before open a Pull Request, run the tests and check if the code is following the [styleguide](#art-styleguides)
 
   * Finally, open a Pull Request following the [pull_request_template.md](https://github.com/grelay/grelay/blob/main/.github/pull_request_template.md) template.
 
@@ -57,4 +57,4 @@ The following is a set of guidelines for contributing to gRelay project. It is i
 
 Thanks! :hearts:
 
-Eduardo Albuquerque da Silva
+gRelay team

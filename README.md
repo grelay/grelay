@@ -32,6 +32,6 @@ $ go get github.com/grelay/grelay
 
   - [Example Circuit break + relay](https://github.com/grelay/grelay/blob/main/examples/circuit-break-plus-relay/main.go)
 
-### *Contributing*
+## **Contributing**
 
-Check our [Contributing Guideline]()
+Check our [Contributing Guideline](https://github.com/grelay/grelay/blob/main/CONTRIBUTING.md)
