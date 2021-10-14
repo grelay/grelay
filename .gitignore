@@ -15,5 +15,6 @@ out.html
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# vscode config
+# . files
 .vscode
+.DS_Store

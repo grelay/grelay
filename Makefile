@@ -1,4 +1,6 @@
-.PHONY: test test-cover test-race-condition
+BENCH_RUN ?= .
+
+.PHONY: test test-cover test-race-condition bench
 
 test:
 	go test ./...
@@ -9,3 +11,6 @@ test-cover:
 
 test-race-condition:
 	go test ./... -cpu=1,9 -race -count=50 -failfast
+
+bench:
+	cd benchmark && go test -v -benchmem -run=^$$ -bench=$(BENCH_RUN) ./...
