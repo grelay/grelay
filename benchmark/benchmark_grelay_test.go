@@ -16,6 +16,7 @@ import (
 	"github.com/cep21/circuit/v3/closers/hystrix"
 	"github.com/cep21/circuit/v3/closers/simplelogic"
 	"github.com/cep21/circuit/v3/metrics/rolling"
+	"github.com/grelay/grelay/v0"
 	iandCircuit "github.com/iand/circuit"
 	circuitbreaker "github.com/rubyist/circuitbreaker"
 	"github.com/sony/gobreaker"
@@ -142,6 +143,17 @@ func BenchmarkCiruits(b *testing.B) {
 			},
 			funcTypes: []interface{}{passes, fails},
 		},
+		{
+			name:   "gRelay",
+			runner: grelayCircuitRunner,
+			configs: []circuitConfigs{
+				{
+					name:   "Default",
+					config: grelay.NewGrelayConfig(),
+				},
+			},
+			funcTypes: []interface{}{passesInter, failsInter},
+		},
 	}
 	for _, impl := range impls {
 		impl := impl
@@ -241,5 +253,26 @@ func iandCircuitRunner(b *testing.B, breakerIn interface{}, concurrent int, func
 	f := funcToRun.(func() error)
 	genericBenchmarkTesting(b, concurrent, func() error {
 		return bc.Do(ctx, f)
+	}, !pass)
+}
+
+func grelayCircuitRunner(b *testing.B, configIn interface{}, concurrent int, funcToRun interface{}, pass bool) {
+
+	const serviceTag = "serviceTag"
+	config := configIn.(grelay.GrelayConfig)
+	config = config.WithGrelayService(&service{})
+
+	services := map[string]grelay.GrelayService{
+		serviceTag: grelay.NewGrelayService(config),
+	}
+
+	f := funcToRun.(func() (interface{}, error))
+	g := grelay.NewGrelay(services)
+
+	genericBenchmarkTesting(b, concurrent, func() error {
+		gr := g.CreateRequest()
+		gr = gr.Enqueue(serviceTag, f)
+		_, err := gr.Exec()
+		return err
 	}, !pass)
 }

@@ -56,3 +56,10 @@ func passesInter() (interface{}, error) {
 func failsInter() (interface{}, error) {
 	return nil, errFailure
 }
+
+// service for gRelay
+type service struct{}
+
+func (s *service) Ping() error {
+	return nil
+}

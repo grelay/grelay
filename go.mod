@@ -1,4 +1,4 @@
-module github.com/grelay/grelay/v1
+module github.com/grelay/grelay/v0
 
 go 1.17
 
