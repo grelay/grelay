@@ -24,7 +24,7 @@ func TestGrelayEnqueueWithOneItemInQueueShouldReturnOneItem(t *testing.T) {
 	gr = gr.Enqueue("test", func() (interface{}, error) { return nil, nil })
 
 	val := reflect.ValueOf(gr)
-	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 
 	assert.Equal(t, 1, len(queueFuncs))
 }
@@ -47,7 +47,7 @@ func TestGrelayEnqueueWithTwoItemsInQueueShouldReturnTwoItems(t *testing.T) {
 	gr = gr.Enqueue("test2", func() (interface{}, error) { return nil, nil })
 
 	val := reflect.ValueOf(gr)
-	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 
 	assert.Equal(t, 2, len(queueFuncs))
 }
@@ -74,7 +74,7 @@ func TestGrelayEnqueueTwoDifferentGrelays(t *testing.T) {
 	gr = gr.Enqueue("test2", func() (interface{}, error) { return nil, nil })
 
 	val := reflect.ValueOf(gr)
-	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 	assert.Equal(t, 2, len(queueFuncs))
 
 	gr2 := g.CreateRequest()
@@ -83,7 +83,7 @@ func TestGrelayEnqueueTwoDifferentGrelays(t *testing.T) {
 	gr2 = gr2.Enqueue("test3", func() (interface{}, error) { return nil, nil })
 
 	val2 := reflect.ValueOf(gr2)
-	queueFuncs2 := val2.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs2 := val2.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 
 	assert.Equal(t, 3, len(queueFuncs2))
 }

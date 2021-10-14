@@ -39,14 +39,11 @@ type GrelayRequest interface {
 	Exec() (interface{}, error)
 }
 
-type grelayRequestQueueStruct struct {
-	service GrelayService
-	f       func() (interface{}, error)
-}
+type grelayRequestFunc func() (interface{}, error)
 
 type grelayRequestImpl struct {
 	mapServices map[string]GrelayService
-	QueueFuncs  []grelayRequestQueueStruct
+	QueueFuncs  []grelayRequestFunc
 
 	mu *sync.RWMutex
 }
@@ -67,11 +64,10 @@ func (gr grelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) Gre
 
 	gr.mu.Lock()
 	if gr.QueueFuncs == nil {
-		gr.QueueFuncs = []grelayRequestQueueStruct{}
+		gr.QueueFuncs = []grelayRequestFunc{}
 	}
-	gr.QueueFuncs = append(gr.QueueFuncs, grelayRequestQueueStruct{
-		service: service,
-		f:       f,
+	gr.QueueFuncs = append(gr.QueueFuncs, func() (interface{}, error) {
+		return service.exec(f)
 	})
 	gr.mu.Unlock()
 
@@ -83,8 +79,8 @@ func (gr grelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) Gre
 func (gr grelayRequestImpl) Exec() (interface{}, error) {
 	gr.mu.RLock()
 	defer gr.mu.RUnlock()
-	for _, r := range gr.QueueFuncs {
-		value, err := r.service.exec(r.f)
+	for _, f := range gr.QueueFuncs {
+		value, err := f()
 		if errors.Is(err, ErrGrelayStateOpened) {
 			continue
 		}

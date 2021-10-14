@@ -24,7 +24,7 @@ func TestGrelayRequestEnqueueShouldIncludeInList(t *testing.T) {
 	gr = gr.Enqueue("test", func() (interface{}, error) { return nil, nil })
 
 	val := reflect.ValueOf(gr)
-	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 	assert.Equal(t, 1, len(queueFuncs))
 }
 
@@ -41,7 +41,7 @@ func TestGrelayRequestEnqueueShouldNotIncludeInList(t *testing.T) {
 	gr = gr.Enqueue("test2", func() (interface{}, error) { return nil, nil })
 
 	val := reflect.ValueOf(gr)
-	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestQueueStruct)
+	queueFuncs := val.FieldByName("QueueFuncs").Interface().([]grelayRequestFunc)
 	assert.Equal(t, 0, len(queueFuncs))
 }
 
