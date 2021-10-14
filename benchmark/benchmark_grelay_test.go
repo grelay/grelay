@@ -16,7 +16,7 @@ import (
 	"github.com/cep21/circuit/v3/closers/hystrix"
 	"github.com/cep21/circuit/v3/closers/simplelogic"
 	"github.com/cep21/circuit/v3/metrics/rolling"
-	"github.com/grelay/grelay/v0"
+	"github.com/grelay/grelay"
 	iandCircuit "github.com/iand/circuit"
 	circuitbreaker "github.com/rubyist/circuitbreaker"
 	"github.com/sony/gobreaker"
