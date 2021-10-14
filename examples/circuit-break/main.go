@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/grelay/grelay"
+	"github.com/grelay/grelay/v1"
 )
 
 const serviceTag = "myService"
