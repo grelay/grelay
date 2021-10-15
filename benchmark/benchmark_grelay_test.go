@@ -12,6 +12,7 @@ import (
 	"time"
 
 	gohystrix "github.com/afex/hystrix-go/hystrix"
+	"github.com/cep21/circuit/closers/simplelogic"
 	"github.com/cep21/circuit/v3"
 	"github.com/cep21/circuit/v3/closers/hystrix"
 	"github.com/cep21/circuit/v3/metrics/rolling"
@@ -46,102 +47,102 @@ func BenchmarkCiruits(b *testing.B) {
 	concurrents := []int{1, 75}
 	passesParam := []bool{true, false}
 	impls := []circuitImpls{
-		// {
-		// 	name:   "cep21-circuit",
-		// 	runner: circuitRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name:   "Hystrix",
-		// 			config: hystrixDefaultStats,
-		// 		}, {
-		// 			name: "Minimal",
-		// 			config: circuit.Config{
-		// 				Execution: circuit.ExecutionConfig{
-		// 					MaxConcurrentRequests: int64(-1),
-		// 					Timeout:               -1,
-		// 				},
-		// 				General: circuit.GeneralConfig{
-		// 					ClosedToOpenFactory: simplelogic.ConsecutiveErrOpenerFactory(simplelogic.ConfigConsecutiveErrOpener{}),
-		// 				},
-		// 			},
-		// 		}, {
-		// 			name: "UseGo",
-		// 			config: circuit.Config{
-		// 				Execution: circuit.ExecutionConfig{
-		// 					MaxConcurrentRequests: int64(12),
-		// 					Timeout:               -1,
-		// 				}, General: circuit.GeneralConfig{
-		// 					CustomConfig: map[interface{}]interface{}{
-		// 						"use-go": true,
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{passesCtx, failsCtx},
-		// },
-		// {
-		// 	name:   "GoHystrix",
-		// 	runner: goHystrixRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name: "DefaultConfig",
-		// 			config: gohystrix.CommandConfig{
-		// 				// I don't *WANT* to pass 100,000 here.  It should just work with `concurrent`, but it doesn't.
-		// 				//MaxConcurrentRequests: concurrent,
-		// 				MaxConcurrentRequests: 100000,
-		// 			},
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{passes, fails},
-		// },
-		// {
-		// 	name:   "rubyist",
-		// 	runner: rubyistRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name: "Threshold-10",
-		// 			config: func() *circuitbreaker.Breaker {
-		// 				return circuitbreaker.NewThresholdBreaker(10)
-		// 			},
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{passes, fails},
-		// },
-		// {
-		// 	name:   "gobreaker",
-		// 	runner: gobreakerRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name:   "Default",
-		// 			config: gobreaker.Settings{},
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{passesInter, failsInter},
-		// },
-		// {
-		// 	name:   "handy",
-		// 	runner: handyRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name: "Default",
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{nil, nil},
-		// },
-		// {
-		// 	name:   "iand_circuit",
-		// 	runner: iandCircuitRunner,
-		// 	configs: []circuitConfigs{
-		// 		{
-		// 			name: "Default",
-		// 			config: &iandCircuit.Breaker{
-		// 				Concurrency: 75,
-		// 			},
-		// 		},
-		// 	},
-		// 	funcTypes: []interface{}{passes, fails},
-		// },
+		{
+			name:   "cep21-circuit",
+			runner: circuitRunner,
+			configs: []circuitConfigs{
+				{
+					name:   "Hystrix",
+					config: hystrixDefaultStats,
+				}, {
+					name: "Minimal",
+					config: circuit.Config{
+						Execution: circuit.ExecutionConfig{
+							MaxConcurrentRequests: int64(-1),
+							Timeout:               -1,
+						},
+						General: circuit.GeneralConfig{
+							ClosedToOpenFactory: simplelogic.ConsecutiveErrOpenerFactory(simplelogic.ConfigConsecutiveErrOpener{}),
+						},
+					},
+				}, {
+					name: "UseGo",
+					config: circuit.Config{
+						Execution: circuit.ExecutionConfig{
+							MaxConcurrentRequests: int64(12),
+							Timeout:               -1,
+						}, General: circuit.GeneralConfig{
+							CustomConfig: map[interface{}]interface{}{
+								"use-go": true,
+							},
+						},
+					},
+				},
+			},
+			funcTypes: []interface{}{passesCtx, failsCtx},
+		},
+		{
+			name:   "GoHystrix",
+			runner: goHystrixRunner,
+			configs: []circuitConfigs{
+				{
+					name: "DefaultConfig",
+					config: gohystrix.CommandConfig{
+						// I don't *WANT* to pass 100,000 here.  It should just work with `concurrent`, but it doesn't.
+						//MaxConcurrentRequests: concurrent,
+						MaxConcurrentRequests: 100000,
+					},
+				},
+			},
+			funcTypes: []interface{}{passes, fails},
+		},
+		{
+			name:   "rubyist",
+			runner: rubyistRunner,
+			configs: []circuitConfigs{
+				{
+					name: "Threshold-10",
+					config: func() *circuitbreaker.Breaker {
+						return circuitbreaker.NewThresholdBreaker(10)
+					},
+				},
+			},
+			funcTypes: []interface{}{passes, fails},
+		},
+		{
+			name:   "gobreaker",
+			runner: gobreakerRunner,
+			configs: []circuitConfigs{
+				{
+					name:   "Default",
+					config: gobreaker.Settings{},
+				},
+			},
+			funcTypes: []interface{}{passesInter, failsInter},
+		},
+		{
+			name:   "handy",
+			runner: handyRunner,
+			configs: []circuitConfigs{
+				{
+					name: "Default",
+				},
+			},
+			funcTypes: []interface{}{nil, nil},
+		},
+		{
+			name:   "iand_circuit",
+			runner: iandCircuitRunner,
+			configs: []circuitConfigs{
+				{
+					name: "Default",
+					config: &iandCircuit.Breaker{
+						Concurrency: 75,
+					},
+				},
+			},
+			funcTypes: []interface{}{passes, fails},
+		},
 		{
 			name:   "gRelay",
 			runner: grelayCircuitRunner,

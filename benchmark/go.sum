@@ -5,6 +5,8 @@ github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZx
 github.com/cactus/go-statsd-client v3.1.1+incompatible/go.mod h1:cMRcwZDklk7hXp+Law83urTHUiHMzCev/r4JMYr/zU0=
 github.com/cenk/backoff v2.2.1+incompatible h1:djdFT7f4gF2ttuzRKPbMOWgZajgesItGLwG5FTQKmmE=
 github.com/cenk/backoff v2.2.1+incompatible/go.mod h1:7FtoeaSnHoZnmZzz47cM35Y9nSW7tNyaidugnHTaFDE=
+github.com/cep21/circuit v3.0.0+incompatible h1:hCh/r5YVX+2wRiatG4/DQ0IiouOvtoW3IXhj/mX0w2o=
+github.com/cep21/circuit v3.0.0+incompatible/go.mod h1:IYFTZLwEh0jvbURztvjxE45GH5IzZb884I/8xaiwEAA=
 github.com/cep21/circuit/v3 v3.2.1 h1:XhMGil4BPZJ/B8Di7Tv2MqfFlb1LZhlbE4+npz+A8q8=
 github.com/cep21/circuit/v3 v3.2.1/go.mod h1:B0ph0u7kxRGgf4AcDPHcs9qwWrbNvmt6hDHxTVTPWfg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -14,8 +16,6 @@ github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a h1:yDWHCSQ40h88yi
 github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a/go.mod h1:7Ga40egUymuWXxAe151lTNnCv97MddSOVsjpPPkityA=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
-github.com/grelay/grelay v0.0.1 h1:0cUxWTbnc01dVJw6YJP25ENId9dtGe447Uz1DvDUG5U=
-github.com/grelay/grelay v0.0.1/go.mod h1:mIHm+Xkenj9jM1uIPg4E5zRXm/DCYq63FefY5OyGyms=
 github.com/iand/circuit v0.0.4 h1:4JO088X6flsqqC0Q7E6KmGunDvqPbu0EaYLCLYYPz3I=
 github.com/iand/circuit v0.0.4/go.mod h1:rytd7t1hTWRRd0xXXfzMpeg0iiBUS1drJlxxfS97KQ0=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=

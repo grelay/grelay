@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
+	github.com/cep21/circuit v3.0.0+incompatible
 	github.com/cep21/circuit/v3 v3.2.1
 	github.com/grelay/grelay v0.0.1
 	github.com/iand/circuit v0.0.4
