@@ -36,11 +36,12 @@ func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, er
 	go g.makeCall(f, callDone)
 
 	g.mu.RLock()
-	serviceTimeout := g.config.serviceTimeout
+	t := time.NewTimer(g.config.serviceTimeout)
 	g.mu.RUnlock()
+	defer t.Stop()
 
 	select {
-	case <-time.After(serviceTimeout):
+	case <-t.C:
 		g.mu.Lock()
 		g.currentServiceThreshould++
 		g.mu.Unlock()
@@ -103,11 +104,12 @@ func (g *grelayServiceImpl) monitoringState() {
 			go g.checkService(checkerChannel)
 
 			g.mu.RLock()
-			serviceTimeout := g.config.serviceTimeout
+			t := time.NewTimer(g.config.serviceTimeout)
 			g.mu.RUnlock()
+			defer t.Stop()
 
 			select {
-			case <-time.After(serviceTimeout):
+			case <-t.C:
 				return
 			case ok := <-checkerChannel:
 				if !ok {
@@ -132,11 +134,12 @@ func (g *grelayServiceImpl) monitoringState() {
 	go g.checkService(checkerChannel)
 
 	g.mu.RLock()
-	serviceTimeout := g.config.serviceTimeout
+	t := time.NewTimer(g.config.serviceTimeout)
 	g.mu.RUnlock()
+	defer t.Stop()
 
 	select {
-	case <-time.After(serviceTimeout):
+	case <-t.C:
 		g.mu.Lock()
 		g.state = open
 		g.mu.Unlock()
