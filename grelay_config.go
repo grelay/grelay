@@ -4,11 +4,11 @@ import "time"
 
 // GrelayConfig is a structure for GrelayService configuration
 type GrelayConfig struct {
+	withGo            bool
+	serviceThreshould int64
 	retryTimePeriod   time.Duration
 	serviceTimeout    time.Duration
-	serviceThreshould int64
 	service           GrelayChecker
-	withGo            bool
 }
 
 /* NewGrelayConfig create config for grelay with these values:

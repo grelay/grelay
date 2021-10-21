@@ -10,10 +10,10 @@ type GrelayService interface {
 }
 
 type grelayServiceImpl struct {
-	config                   GrelayConfig
-	currentServiceThreshould int64
 	state                    state
+	currentServiceThreshould int64
 	realExec                 grelayExec
+	config                   GrelayConfig
 
 	mu sync.RWMutex
 }
