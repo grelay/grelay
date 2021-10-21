@@ -13,6 +13,7 @@ func TestEmptyGrelayConfig(t *testing.T) {
 	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
 	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
 	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
+	assert.True(t, c.withGo)
 }
 
 func TestEmptyGrelayConfigWithRetryTimePeriod(t *testing.T) {
@@ -47,4 +48,14 @@ func TestEmptyGrelayConfigWithServiceThreshouldAndWithServiceTimeout(t *testing.
 	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
 	assert.Equal(t, c.serviceTimeout, 20*time.Second, "ServiceTimeout should be 10 sec with default value")
 	assert.Equal(t, c.serviceThreshould, int64(20), "ServiceThreshould should be 20 with default value")
+}
+
+func TestEmptyGrelayConfigWithGo(t *testing.T) {
+	c := NewGrelayConfig()
+	c = c.WithGo()
+
+	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
+	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
+	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
+	assert.True(t, c.withGo)
 }

@@ -13,6 +13,7 @@ type grelayServiceImpl struct {
 	config                   GrelayConfig
 	currentServiceThreshould int64
 	state                    state
+	realExec                 grelayExec
 
 	mu sync.RWMutex
 }
@@ -27,65 +28,15 @@ func NewGrelayService(c GrelayConfig) GrelayService {
 		config: c,
 		state:  closed,
 	}
+	if c.withGo {
+		g.realExec = grelayExecWithGo{}
+	}
 	go g.monitoring()
 	return g
 }
 
 func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, error) {
-	callDone := make(chan callResponse, 1)
-	go g.makeCall(f, callDone)
-
-	g.mu.RLock()
-	t := time.NewTimer(g.config.serviceTimeout)
-	g.mu.RUnlock()
-	defer t.Stop()
-
-	select {
-	case <-t.C:
-		g.mu.Lock()
-		g.currentServiceThreshould++
-		g.mu.Unlock()
-
-		g.mu.RLock()
-		if g.currentServiceThreshould >= g.config.serviceThreshould {
-			g.mu.RUnlock()
-
-			g.mu.Lock()
-			g.state = open
-			g.mu.Unlock()
-
-			return nil, ErrGrelayServiceTimedout
-		}
-		g.mu.RUnlock()
-
-		return nil, ErrGrelayServiceTimedout
-	case r := <-callDone:
-		return r.i, r.err
-	}
-}
-
-func (g *grelayServiceImpl) makeCall(f func() (interface{}, error), c chan<- callResponse) {
-	defer close(c)
-	g.mu.RLock()
-	if string(g.state) == string(open) || string(g.state) == string(halfOpen) {
-		g.mu.RUnlock()
-		c <- callResponse{nil, ErrGrelayStateOpened}
-		return
-	}
-	if g.currentServiceThreshould >= g.config.serviceThreshould {
-		g.mu.RUnlock()
-
-		g.mu.Lock()
-		g.state = open
-		g.mu.Unlock()
-
-		c <- callResponse{nil, ErrGrelayStateOpened}
-		return
-	}
-	g.mu.RUnlock()
-
-	i, err := f()
-	c <- callResponse{i, err}
+	return g.realExec.exec(g, f)
 }
 
 func (g *grelayServiceImpl) monitoring() {
