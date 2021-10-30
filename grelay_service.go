@@ -12,7 +12,6 @@ type GrelayService interface {
 type grelayServiceImpl struct {
 	state                    state
 	currentServiceThreshould int64
-	realExec                 grelayExec
 	config                   GrelayConfig
 
 	mu sync.RWMutex
@@ -28,15 +27,12 @@ func NewGrelayService(c GrelayConfig) GrelayService {
 		config: c,
 		state:  closed,
 	}
-	if c.withGo {
-		g.realExec = grelayExecWithGo{}
-	}
 	go g.monitoring()
 	return g
 }
 
 func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, error) {
-	return g.realExec.exec(g, f)
+	return getGrelayExec(g.config).exec(g, f)
 }
 
 func (g *grelayServiceImpl) monitoring() {

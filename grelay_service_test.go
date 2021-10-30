@@ -31,7 +31,6 @@ func TestExecWithGo(t *testing.T) {
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 0,
-		realExec:                 grelayExecWithGo{},
 	}
 	_, err := g.exec(func() (interface{}, error) {
 		return nil, nil
@@ -74,7 +73,6 @@ func TestMonitoringWhenStateClosedAndCurrentServiceThreshouldEqualZeroShouldKeep
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 0,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 	g.mu.RLock()
@@ -94,7 +92,6 @@ func TestMonitoringWhenStateClosedAndServiceNotOKShouldKeepThreshould(t *testing
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 
@@ -114,7 +111,6 @@ func TestMonitoringWhenStateClosedAndServiceReturningErrorShouldKeepThreshould(t
 		config:                   c,
 		state:                    closed,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 	g.mu.RLock()
@@ -133,7 +129,6 @@ func TestMonitoringWhenStateOpenAndPingSuccedShouldHaveClosedState(t *testing.T)
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 	g.mu.RLock()
@@ -151,7 +146,6 @@ func TestMonitoringWhenStateOpenAndPingAndTimeoutDoesNotHaveTimeToAnswerShouldHa
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	go g.monitoringState()
 	time.Sleep(5 * time.Millisecond)
@@ -171,7 +165,6 @@ func TestMonitoringWhenStateOpenAndPingFailedShouldHaveOpenState(t *testing.T) {
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 
@@ -192,7 +185,6 @@ func TestMonitoringWhenStateOpenAndTimeoutOccurredShouldHaveOpenState(t *testing
 		config:                   c,
 		state:                    open,
 		currentServiceThreshould: 3,
-		realExec:                 grelayExecWithGo{},
 	}
 	g.monitoringState()
 
