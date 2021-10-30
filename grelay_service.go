@@ -10,9 +10,9 @@ type GrelayService interface {
 }
 
 type grelayServiceImpl struct {
-	config                   GrelayConfig
-	currentServiceThreshould int64
 	state                    state
+	currentServiceThreshould int64
+	config                   GrelayConfig
 
 	mu sync.RWMutex
 }
@@ -32,59 +32,7 @@ func NewGrelayService(c GrelayConfig) GrelayService {
 }
 
 func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, error) {
-	callDone := make(chan callResponse, 1)
-	go g.makeCall(f, callDone)
-
-	g.mu.RLock()
-	serviceTimeout := g.config.serviceTimeout
-	g.mu.RUnlock()
-
-	select {
-	case <-time.After(serviceTimeout):
-		g.mu.Lock()
-		g.currentServiceThreshould++
-		g.mu.Unlock()
-
-		g.mu.RLock()
-		if g.currentServiceThreshould >= g.config.serviceThreshould {
-			g.mu.RUnlock()
-
-			g.mu.Lock()
-			g.state = open
-			g.mu.Unlock()
-
-			return nil, ErrGrelayServiceTimedout
-		}
-		g.mu.RUnlock()
-
-		return nil, ErrGrelayServiceTimedout
-	case r := <-callDone:
-		return r.i, r.err
-	}
-}
-
-func (g *grelayServiceImpl) makeCall(f func() (interface{}, error), c chan<- callResponse) {
-	defer close(c)
-	g.mu.RLock()
-	if string(g.state) == string(open) || string(g.state) == string(halfOpen) {
-		g.mu.RUnlock()
-		c <- callResponse{nil, ErrGrelayStateOpened}
-		return
-	}
-	if g.currentServiceThreshould >= g.config.serviceThreshould {
-		g.mu.RUnlock()
-
-		g.mu.Lock()
-		g.state = open
-		g.mu.Unlock()
-
-		c <- callResponse{nil, ErrGrelayStateOpened}
-		return
-	}
-	g.mu.RUnlock()
-
-	i, err := f()
-	c <- callResponse{i, err}
+	return getGrelayExec(g.config).exec(g, f)
 }
 
 func (g *grelayServiceImpl) monitoring() {
@@ -103,11 +51,12 @@ func (g *grelayServiceImpl) monitoringState() {
 			go g.checkService(checkerChannel)
 
 			g.mu.RLock()
-			serviceTimeout := g.config.serviceTimeout
+			t := time.NewTimer(g.config.serviceTimeout)
 			g.mu.RUnlock()
+			defer t.Stop()
 
 			select {
-			case <-time.After(serviceTimeout):
+			case <-t.C:
 				return
 			case ok := <-checkerChannel:
 				if !ok {
@@ -132,11 +81,12 @@ func (g *grelayServiceImpl) monitoringState() {
 	go g.checkService(checkerChannel)
 
 	g.mu.RLock()
-	serviceTimeout := g.config.serviceTimeout
+	t := time.NewTimer(g.config.serviceTimeout)
 	g.mu.RUnlock()
+	defer t.Stop()
 
 	select {
-	case <-time.After(serviceTimeout):
+	case <-t.C:
 		g.mu.Lock()
 		g.state = open
 		g.mu.Unlock()

@@ -4,9 +4,10 @@ import "time"
 
 // GrelayConfig is a structure for GrelayService configuration
 type GrelayConfig struct {
+	withGo            bool
+	serviceThreshould int64
 	retryTimePeriod   time.Duration
 	serviceTimeout    time.Duration
-	serviceThreshould int64
 	service           GrelayChecker
 }
 
@@ -24,6 +25,7 @@ func NewGrelayConfig() GrelayConfig {
 		serviceTimeout:    10 * time.Second,
 		serviceThreshould: 10,
 		service:           nil,
+		withGo:            true,
 	}
 }
 
@@ -51,5 +53,11 @@ func (c GrelayConfig) WithServiceThreshould(ts int64) GrelayConfig {
 // WithGrelayService sets the service that is responsible for ping to the server when the state is OPEN
 func (c GrelayConfig) WithGrelayService(service GrelayChecker) GrelayConfig {
 	c.service = service
+	return c
+}
+
+// WithGo is responsible to execute in a goroutine your call function. If get ServiceTimeout, grelay will return instead of hold your call.
+func (c GrelayConfig) WithGo() GrelayConfig {
+	c.withGo = true
 	return c
 }

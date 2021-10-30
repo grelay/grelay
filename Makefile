@@ -14,3 +14,7 @@ test-race-condition:
 
 bench:
 	cd benchmark && go test -v -benchmem -run=^$$ -bench=$(BENCH_RUN) ./...
+
+bench-mem:
+	cd benchmark && go test -v -memprofile mem.out -benchmem -run=^$$ -bench=$(BENCH_RUN) ./...
+	go tool pprof ./benchmark/mem.out
