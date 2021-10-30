@@ -56,6 +56,7 @@ func (c GrelayConfig) WithGrelayService(service GrelayChecker) GrelayConfig {
 	return c
 }
 
+// WithGo is responsible to execute in a goroutine your call function. If get ServiceTimeout, grelay will return instead of hold your call.
 func (c GrelayConfig) WithGo() GrelayConfig {
 	c.withGo = true
 	return c
