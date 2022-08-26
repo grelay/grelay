@@ -1,4 +1,4 @@
-package gr
+package grelay
 
 import (
 	"errors"

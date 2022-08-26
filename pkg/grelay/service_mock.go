@@ -1,4 +1,4 @@
-package gr
+package grelay
 
 import "github.com/stretchr/testify/mock"
 

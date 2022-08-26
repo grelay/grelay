@@ -1,9 +1,10 @@
-package gr
+package grelay
 
 import (
 	"testing"
 	"time"
 
+	"github.com/grelay/grelay/internal/gr"
 	"github.com/grelay/grelay/internal/states"
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +44,7 @@ func TestGrelayExecWithGoWithOpenState(t *testing.T) {
 	defer g.mu.RUnlock()
 	assert.Equal(t, string(states.Open), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
-	assert.EqualError(t, err, ErrGrelayStateOpened.Error())
+	assert.EqualError(t, err, gr.ErrGrelayStateOpened.Error())
 }
 
 func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
@@ -62,7 +63,7 @@ func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
 	defer g.mu.RUnlock()
 	assert.Equal(t, string(states.HalfOpen), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
-	assert.EqualError(t, err, ErrGrelayStateOpened.Error())
+	assert.EqualError(t, err, gr.ErrGrelayStateOpened.Error())
 }
 
 func TestGrelayExecWithGoWithClosedStateWithCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
@@ -82,7 +83,7 @@ func TestGrelayExecWithGoWithClosedStateWithCurrentServiceThreshouldGratherThanS
 	defer g.mu.RUnlock()
 	assert.Equal(t, string(states.Open), string(g.state))
 	assert.Equal(t, int64(6), g.currentServiceThreshould)
-	assert.EqualError(t, err, ErrGrelayStateOpened.Error())
+	assert.EqualError(t, err, gr.ErrGrelayStateOpened.Error())
 }
 
 func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldLessThanServiceThreshould(t *testing.T) {
@@ -105,7 +106,7 @@ func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThres
 	defer g.mu.RUnlock()
 	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(4), g.currentServiceThreshould)
-	assert.EqualError(t, err, ErrGrelayServiceTimedout.Error())
+	assert.EqualError(t, err, gr.ErrGrelayServiceTimedout.Error())
 }
 
 func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
@@ -128,5 +129,5 @@ func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThres
 	defer g.mu.RUnlock()
 	assert.Equal(t, string(states.Open), string(g.state))
 	assert.Equal(t, int64(5), g.currentServiceThreshould)
-	assert.EqualError(t, err, ErrGrelayServiceTimedout.Error())
+	assert.EqualError(t, err, gr.ErrGrelayServiceTimedout.Error())
 }

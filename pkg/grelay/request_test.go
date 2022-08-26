@@ -1,4 +1,4 @@
-package gr
+package grelay
 
 import (
 	"reflect"
@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/grelay/grelay/internal/gr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -46,12 +47,12 @@ func TestGrelayRequestEnqueueShouldNotIncludeInList(t *testing.T) {
 }
 
 func TestGrelayRequestExecWithEmptyQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
-	var gr GrelayRequest = GrelayRequestImpl{
+	var gr2 GrelayRequest = GrelayRequestImpl{
 		Mu: &sync.RWMutex{},
 	}
-	val, err := gr.Exec()
+	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, ErrGrelayAllRequestsOpened.Error())
+	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened.Error())
 }
 
 func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
@@ -74,25 +75,25 @@ func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
 
 func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test": sMock,
 	}
-	var gr GrelayRequest = GrelayRequestImpl{
+	var gr2 GrelayRequest = GrelayRequestImpl{
 		MapServices: m,
 		Mu:          &sync.RWMutex{},
 	}
-	gr = gr.Enqueue("test", func() (interface{}, error) { return nil, nil })
+	gr2 = gr2.Enqueue("test", func() (interface{}, error) { return nil, nil })
 
-	val, err := gr.Exec()
+	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, ErrGrelayAllRequestsOpened.Error())
+	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened.Error())
 }
 
 func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
 
 	sMock2 := new(GrelayServiceMock)
 	sMock2.On("exec", mock.Anything).Return(nil, nil)
@@ -115,41 +116,41 @@ func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *t
 
 func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutShouldReturnErrGrelayServiceTimedout(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayServiceTimedout)
+	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayServiceTimedout)
 
 	m := map[string]GrelayService{
 		"test": sMock,
 	}
-	var gr GrelayRequest = GrelayRequestImpl{
+	var gr2 GrelayRequest = GrelayRequestImpl{
 		MapServices: m,
 		Mu:          &sync.RWMutex{},
 	}
-	gr = gr.Enqueue("test", func() (interface{}, error) { return nil, nil })
+	gr2 = gr2.Enqueue("test", func() (interface{}, error) { return nil, nil })
 
-	val, err := gr.Exec()
+	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, ErrGrelayServiceTimedout.Error())
+	assert.Error(t, err, gr.ErrGrelayServiceTimedout.Error())
 }
 
 func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
 
 	sMock2 := new(GrelayServiceMock)
-	sMock2.On("exec", mock.Anything).Return(nil, ErrGrelayStateOpened)
+	sMock2.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test":  sMock,
 		"test2": sMock2,
 	}
-	var gr GrelayRequest = GrelayRequestImpl{
+	var gr2 GrelayRequest = GrelayRequestImpl{
 		MapServices: m,
 		Mu:          &sync.RWMutex{},
 	}
-	gr = gr.Enqueue("test", func() (interface{}, error) { return nil, nil })
-	gr = gr.Enqueue("test2", func() (interface{}, error) { return nil, nil })
+	gr2 = gr2.Enqueue("test", func() (interface{}, error) { return nil, nil })
+	gr2 = gr2.Enqueue("test2", func() (interface{}, error) { return nil, nil })
 
-	val, err := gr.Exec()
+	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, ErrGrelayAllRequestsOpened)
+	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened)
 }

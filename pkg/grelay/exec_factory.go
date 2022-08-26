@@ -1,6 +1,6 @@
-package gr
+package grelay
 
-func getGrelayExec(c GrelayConfig) grelayExec {
+func getGrelayExec(c Configuration) grelayExec {
 	if c.withGo {
 		return grelayExecWithGo{}
 	}

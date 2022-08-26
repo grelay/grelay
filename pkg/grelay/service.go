@@ -1,4 +1,4 @@
-package gr
+package grelay
 
 import (
 	"sync"
@@ -14,7 +14,7 @@ type GrelayService interface {
 type grelayServiceImpl struct {
 	state                    string
 	currentServiceThreshould int64
-	config                   GrelayConfig
+	config                   Configuration
 
 	mu sync.RWMutex
 }
@@ -24,7 +24,7 @@ type callResponse struct {
 	err error
 }
 
-func NewGrelayService(c GrelayConfig) GrelayService {
+func NewGrelayService(c Configuration) GrelayService {
 	g := &grelayServiceImpl{
 		config: c,
 		state:  states.Closed,

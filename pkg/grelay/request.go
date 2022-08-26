@@ -1,10 +1,11 @@
-package gr
+package grelay
 
 import (
 	"errors"
 	"fmt"
 	"sync"
 
+	"github.com/grelay/grelay/internal/gr"
 	"go.uber.org/zap"
 )
 
@@ -76,15 +77,15 @@ func (gr GrelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) Gre
 	return gr
 }
 
-func (gr GrelayRequestImpl) Exec() (interface{}, error) {
-	gr.Mu.RLock()
-	defer gr.Mu.RUnlock()
-	for _, f := range gr.QueueFuncs {
+func (gr2 GrelayRequestImpl) Exec() (interface{}, error) {
+	gr2.Mu.RLock()
+	defer gr2.Mu.RUnlock()
+	for _, f := range gr2.QueueFuncs {
 		value, err := f()
-		if errors.Is(err, ErrGrelayStateOpened) {
+		if errors.Is(err, gr.ErrGrelayStateOpened) {
 			continue
 		}
 		return value, err
 	}
-	return nil, ErrGrelayAllRequestsOpened
+	return nil, gr.ErrGrelayAllRequestsOpened
 }
