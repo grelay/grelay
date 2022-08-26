@@ -1,6 +1,10 @@
 package gr
 
-import "time"
+import (
+	"time"
+
+	"github.com/grelay/grelay/internal/states"
+)
 
 type grelayExecWithGo struct{}
 
@@ -25,7 +29,7 @@ func (e grelayExecWithGo) exec(service GrelayService, f func() (interface{}, err
 			gs.mu.RUnlock()
 
 			gs.mu.Lock()
-			gs.state = open
+			gs.state = states.Open
 			gs.mu.Unlock()
 
 			return nil, ErrGrelayServiceTimedout
@@ -42,7 +46,7 @@ func (g grelayExecWithGo) makeCall(service GrelayService, f func() (interface{},
 	gs := service.(*grelayServiceImpl)
 	defer close(c)
 	gs.mu.RLock()
-	if string(gs.state) == string(open) || string(gs.state) == string(halfOpen) {
+	if string(gs.state) == string(states.Open) || string(gs.state) == string(states.HalfOpen) {
 		gs.mu.RUnlock()
 		c <- callResponse{nil, ErrGrelayStateOpened}
 		return
@@ -51,7 +55,7 @@ func (g grelayExecWithGo) makeCall(service GrelayService, f func() (interface{},
 		gs.mu.RUnlock()
 
 		gs.mu.Lock()
-		gs.state = open
+		gs.state = states.Open
 		gs.mu.Unlock()
 
 		c <- callResponse{nil, ErrGrelayStateOpened}

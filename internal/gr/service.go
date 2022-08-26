@@ -3,6 +3,8 @@ package gr
 import (
 	"sync"
 	"time"
+
+	"github.com/grelay/grelay/internal/states"
 )
 
 type GrelayService interface {
@@ -10,7 +12,7 @@ type GrelayService interface {
 }
 
 type grelayServiceImpl struct {
-	state                    state
+	state                    string
 	currentServiceThreshould int64
 	config                   GrelayConfig
 
@@ -25,7 +27,7 @@ type callResponse struct {
 func NewGrelayService(c GrelayConfig) GrelayService {
 	g := &grelayServiceImpl{
 		config: c,
-		state:  closed,
+		state:  states.Closed,
 	}
 	go g.monitoring()
 	return g
@@ -43,7 +45,7 @@ func (g *grelayServiceImpl) monitoring() {
 
 func (g *grelayServiceImpl) monitoringState() {
 	g.mu.RLock()
-	if string(g.state) == string(closed) {
+	if string(g.state) == string(states.Closed) {
 		if g.currentServiceThreshould > 0 {
 			g.mu.RUnlock()
 
@@ -74,7 +76,7 @@ func (g *grelayServiceImpl) monitoringState() {
 	g.mu.RUnlock()
 
 	g.mu.Lock()
-	g.state = halfOpen
+	g.state = states.HalfOpen
 	g.mu.Unlock()
 
 	checkerChannel := make(chan bool, 1)
@@ -88,17 +90,17 @@ func (g *grelayServiceImpl) monitoringState() {
 	select {
 	case <-t.C:
 		g.mu.Lock()
-		g.state = open
+		g.state = states.Open
 		g.mu.Unlock()
 		return
 	case ok := <-checkerChannel:
 		g.mu.Lock()
 		defer g.mu.Unlock()
 		if !ok {
-			g.state = open
+			g.state = states.Open
 			return
 		}
-		g.state = closed
+		g.state = states.Closed
 		g.currentServiceThreshould = 0
 		return
 	}

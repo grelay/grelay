@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/grelay/grelay/internal/states"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +30,7 @@ func TestExecWithGo(t *testing.T) {
 	c := NewGrelayConfig()
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    closed,
+		state:                    states.Closed,
 		currentServiceThreshould: 0,
 	}
 	_, err := g.exec(func() (interface{}, error) {
@@ -38,7 +39,7 @@ func TestExecWithGo(t *testing.T) {
 
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
 	assert.Nil(t, err, "Error Should return nil")
 }
@@ -51,7 +52,7 @@ func TestMonitoringWhenStateClosedAndServiceOKShouldResetThreshould(t *testing.T
 	c = c.WithGrelayService(s)
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    closed,
+		state:                    states.Closed,
 		currentServiceThreshould: 3,
 	}
 
@@ -59,7 +60,7 @@ func TestMonitoringWhenStateClosedAndServiceOKShouldResetThreshould(t *testing.T
 
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
 }
 
@@ -71,13 +72,13 @@ func TestMonitoringWhenStateClosedAndCurrentServiceThreshouldEqualZeroShouldKeep
 	c = c.WithGrelayService(s)
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    closed,
+		state:                    states.Closed,
 		currentServiceThreshould: 0,
 	}
 	g.monitoringState()
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
 }
 
@@ -90,14 +91,14 @@ func TestMonitoringWhenStateClosedAndServiceNotOKShouldKeepThreshould(t *testing
 	c = c.WithServiceTimeout(2 * time.Millisecond)
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    closed,
+		state:                    states.Closed,
 		currentServiceThreshould: 3,
 	}
 	g.monitoringState()
 
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
 
@@ -109,13 +110,13 @@ func TestMonitoringWhenStateClosedAndServiceReturningErrorShouldKeepThreshould(t
 	c = c.WithGrelayService(s)
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    closed,
+		state:                    states.Closed,
 		currentServiceThreshould: 3,
 	}
 	g.monitoringState()
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
 
@@ -127,13 +128,13 @@ func TestMonitoringWhenStateOpenAndPingSuccedShouldHaveClosedState(t *testing.T)
 
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    open,
+		state:                    states.Open,
 		currentServiceThreshould: 3,
 	}
 	g.monitoringState()
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(closed), string(g.state))
+	assert.Equal(t, string(states.Closed), string(g.state))
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
 }
 
@@ -144,14 +145,14 @@ func TestMonitoringWhenStateOpenAndPingAndTimeoutDoesNotHaveTimeToAnswerShouldHa
 
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    open,
+		state:                    states.Open,
 		currentServiceThreshould: 3,
 	}
 	go g.monitoringState()
 	time.Sleep(5 * time.Millisecond)
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(halfOpen), string(g.state))
+	assert.Equal(t, string(states.HalfOpen), string(g.state))
 	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
 
@@ -163,14 +164,14 @@ func TestMonitoringWhenStateOpenAndPingFailedShouldHaveOpenState(t *testing.T) {
 
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    open,
+		state:                    states.Open,
 		currentServiceThreshould: 3,
 	}
 	g.monitoringState()
 
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(open), string(g.state))
+	assert.Equal(t, string(states.Open), string(g.state))
 	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
 
@@ -183,13 +184,13 @@ func TestMonitoringWhenStateOpenAndTimeoutOccurredShouldHaveOpenState(t *testing
 
 	g := &grelayServiceImpl{
 		config:                   c,
-		state:                    open,
+		state:                    states.Open,
 		currentServiceThreshould: 3,
 	}
 	g.monitoringState()
 
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	assert.Equal(t, string(open), string(g.state))
+	assert.Equal(t, string(states.Open), string(g.state))
 	assert.Equal(t, int64(3), g.currentServiceThreshould)
 }
