@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/grelay/grelay"
+	"github.com/grelay/grelay/pkg/grelay"
 )
 
 const serviceTag = "myService"
@@ -27,11 +27,24 @@ func (s *myService2) Ping() error {
 }
 
 func main() {
+	service1 := &myService{}
+	config1 := grelay.NewGrelayConfig()
+	config1 = config1.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
+	config1 = config1.WithGrelayService(service1)
+	config1 = config1.WithServiceTimeout(500 * time.Millisecond) // Limit timeout to 0.5s, if pass of that, increase threshould
+	config1 = config1.WithServiceThreshould(1)                   // Set the number of threshould allowed.
+
+	service2 := &myService2{}
+	config2 := grelay.NewGrelayConfig()
+	config2 = config2.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
+	config2 = config2.WithGrelayService(service2)
+	config2 = config2.WithServiceTimeout(1 * time.Second) // Limit timeout to 1s, if pass of that, increase threshould
+	config2 = config2.WithServiceThreshould(5)
 
 	// services that grelay will manage
 	services := map[string]grelay.GrelayService{
-		serviceTag:  grelay.NewGrelayService(configGrelayService1()),
-		service2Tag: grelay.NewGrelayService(configGrelayService2()),
+		serviceTag:  grelay.NewGrelayService(config1),
+		service2Tag: grelay.NewGrelayService(config2),
 	}
 
 	g := grelay.NewGrelay(services)
@@ -59,26 +72,4 @@ func main() {
 		}
 		fmt.Println(val.(myResponse).name)
 	}
-}
-
-func configGrelayService1() grelay.GrelayConfig {
-	service := &myService{}
-	config := grelay.NewGrelayConfig()
-	config = config.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
-	config = config.WithGrelayService(service)
-	config = config.WithServiceTimeout(500 * time.Millisecond) // Limit timeout to 0.5s, if pass of that, increase threshould
-	config = config.WithServiceThreshould(1)                   // Set the number of threshould allowed.
-
-	return config
-}
-
-func configGrelayService2() grelay.GrelayConfig {
-	service := &myService2{}
-	config := grelay.NewGrelayConfig()
-	config = config.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
-	config = config.WithGrelayService(service)
-	config = config.WithServiceTimeout(1 * time.Second) // Limit timeout to 1s, if pass of that, increase threshould
-	config = config.WithServiceThreshould(5)            // Set the number of threshould allowed.
-
-	return config
 }

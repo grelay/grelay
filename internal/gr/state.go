@@ -1,4 +1,4 @@
-package grelay
+package gr
 
 type state string
 

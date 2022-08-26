@@ -1,4 +1,4 @@
-package grelay
+package gr
 
 import (
 	"testing"

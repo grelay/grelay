@@ -1,4 +1,4 @@
-package grelay
+package gr
 
 func getGrelayExec(c GrelayConfig) grelayExec {
 	if c.withGo {

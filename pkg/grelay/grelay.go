@@ -1,6 +1,14 @@
 package grelay
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/grelay/grelay/internal/gr"
+)
+
+type GrelayService struct {
+	gs gr.GrelayService
+}
 
 // Grelay is an interface that have Enqueue function
 type Grelay interface {
@@ -10,11 +18,11 @@ type Grelay interface {
 
 	gr := grelay.CreateRequest()
 	*/
-	CreateRequest() GrelayRequest
+	CreateRequest() gr.GrelayRequest
 }
 
 type grelayImpl struct {
-	mapServices map[string]GrelayService
+	mapServices map[string]gr.GrelayService
 }
 
 /* NewGrelay creates a grelay config using a map of string:GrelayService
@@ -36,14 +44,28 @@ EX:
 
 */
 func NewGrelay(m map[string]GrelayService) Grelay {
+	ms := make(map[string]gr.GrelayService, len(m))
+	for k, v := range m {
+		ms[k] = v.gs
+	}
 	return &grelayImpl{
-		mapServices: m,
+		mapServices: ms,
 	}
 }
 
-func (g *grelayImpl) CreateRequest() GrelayRequest {
-	return grelayRequestImpl{
-		mapServices: g.mapServices,
-		mu:          &sync.RWMutex{},
+func (g *grelayImpl) CreateRequest() gr.GrelayRequest {
+	return gr.GrelayRequestImpl{
+		MapServices: g.mapServices,
+		Mu:          &sync.RWMutex{},
+	}
+}
+
+func NewGrelayConfig() gr.GrelayConfig {
+	return gr.NewGrelayConfig()
+}
+
+func NewGrelayService(c gr.GrelayConfig) GrelayService {
+	return GrelayService{
+		gs: gr.NewGrelayService(c),
 	}
 }
