@@ -1,4 +1,4 @@
-package gr
+package errs
 
 import "errors"
 

@@ -3,7 +3,7 @@ package grelay
 import (
 	"time"
 
-	"github.com/grelay/grelay/internal/gr"
+	"github.com/grelay/grelay/internal/errs"
 	"github.com/grelay/grelay/internal/states"
 )
 
@@ -33,11 +33,11 @@ func (e grelayExecWithGo) exec(service GrelayService, f func() (interface{}, err
 			gs.state = states.Open
 			gs.mu.Unlock()
 
-			return nil, gr.ErrGrelayServiceTimedout
+			return nil, errs.ErrGrelayServiceTimedout
 		}
 		gs.mu.RUnlock()
 
-		return nil, gr.ErrGrelayServiceTimedout
+		return nil, errs.ErrGrelayServiceTimedout
 	case r := <-callDone:
 		return r.i, r.err
 	}
@@ -49,7 +49,7 @@ func (g grelayExecWithGo) makeCall(service GrelayService, f func() (interface{},
 	gs.mu.RLock()
 	if string(gs.state) == string(states.Open) || string(gs.state) == string(states.HalfOpen) {
 		gs.mu.RUnlock()
-		c <- callResponse{nil, gr.ErrGrelayStateOpened}
+		c <- callResponse{nil, errs.ErrGrelayStateOpened}
 		return
 	}
 	if gs.currentServiceThreshould >= gs.config.serviceThreshould {
@@ -59,7 +59,7 @@ func (g grelayExecWithGo) makeCall(service GrelayService, f func() (interface{},
 		gs.state = states.Open
 		gs.mu.Unlock()
 
-		c <- callResponse{nil, gr.ErrGrelayStateOpened}
+		c <- callResponse{nil, errs.ErrGrelayStateOpened}
 		return
 	}
 	gs.mu.RUnlock()

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/grelay/grelay/internal/gr"
+	"github.com/grelay/grelay/internal/errs"
 	"go.uber.org/zap"
 )
 
@@ -82,10 +82,10 @@ func (gr2 GrelayRequestImpl) Exec() (interface{}, error) {
 	defer gr2.Mu.RUnlock()
 	for _, f := range gr2.QueueFuncs {
 		value, err := f()
-		if errors.Is(err, gr.ErrGrelayStateOpened) {
+		if errors.Is(err, errs.ErrGrelayStateOpened) {
 			continue
 		}
 		return value, err
 	}
-	return nil, gr.ErrGrelayAllRequestsOpened
+	return nil, errs.ErrGrelayAllRequestsOpened
 }

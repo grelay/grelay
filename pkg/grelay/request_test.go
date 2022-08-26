@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grelay/grelay/internal/gr"
+	"github.com/grelay/grelay/internal/errs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -52,7 +52,7 @@ func TestGrelayRequestExecWithEmptyQueueShouldReturnErrGrelayAllRequestsOpened(t
 	}
 	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened.Error())
+	assert.Error(t, err, errs.ErrGrelayAllRequestsOpened.Error())
 }
 
 func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
@@ -75,7 +75,7 @@ func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
 
 func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, errs.ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test": sMock,
@@ -88,12 +88,12 @@ func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllReques
 
 	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened.Error())
+	assert.Error(t, err, errs.ErrGrelayAllRequestsOpened.Error())
 }
 
 func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, errs.ErrGrelayStateOpened)
 
 	sMock2 := new(GrelayServiceMock)
 	sMock2.On("exec", mock.Anything).Return(nil, nil)
@@ -116,7 +116,7 @@ func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *t
 
 func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutShouldReturnErrGrelayServiceTimedout(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayServiceTimedout)
+	sMock.On("exec", mock.Anything).Return(nil, errs.ErrGrelayServiceTimedout)
 
 	m := map[string]GrelayService{
 		"test": sMock,
@@ -129,15 +129,15 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 
 	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, gr.ErrGrelayServiceTimedout.Error())
+	assert.Error(t, err, errs.ErrGrelayServiceTimedout.Error())
 }
 
 func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
+	sMock.On("exec", mock.Anything).Return(nil, errs.ErrGrelayStateOpened)
 
 	sMock2 := new(GrelayServiceMock)
-	sMock2.On("exec", mock.Anything).Return(nil, gr.ErrGrelayStateOpened)
+	sMock2.On("exec", mock.Anything).Return(nil, errs.ErrGrelayStateOpened)
 
 	m := map[string]GrelayService{
 		"test":  sMock,
@@ -152,5 +152,5 @@ func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllR
 
 	val, err := gr2.Exec()
 	assert.Nil(t, val)
-	assert.Error(t, err, gr.ErrGrelayAllRequestsOpened)
+	assert.Error(t, err, errs.ErrGrelayAllRequestsOpened)
 }
