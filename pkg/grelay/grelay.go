@@ -1,3 +1,4 @@
+// Package grelay provides a circuit breaker implementation for a set of services (microservices, database and internal/external applications).
 package grelay
 
 import (
