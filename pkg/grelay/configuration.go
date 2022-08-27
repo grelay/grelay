@@ -4,62 +4,42 @@ import (
 	"time"
 )
 
+// Pingable provides a Ping contract.
+//
+// This contract is a Ping function which has the responsability to check the health of the service.
+// When Ping function returns nil, it means the service is healthy.
+type Pingable interface {
+	Ping() error
+}
+
 // Configuration is a structure for GrelayService configuration
+//
+// TODO remove the Service configuration.
 type Configuration struct {
-	withGo            bool
-	serviceThreshould int64
-	retryTimePeriod   time.Duration
-	serviceTimeout    time.Duration
-	service           GrelayChecker
+	// WithGo is responsible to execute in a goroutine your call function.
+	// When WithGo is set to true, and the Timeout condiguration is reached, the request will return and cancel the request.
+	// When WithGo is set to false, all request will wait even if the Timeout configuration is reached.
+	WithGo bool
+	// Threshould sets the limit of threshould. to change the state of the service to OPEN. It means that the
+	// When Threshould hits the limit, the service will be blocked by request until it be healthy again.
+	//
+	// Grelay will check the healthy of the application by using the Service configuration.
+	Threshould int64
+	// RetryPeriod sets the retry time period to check the health of the service when it is blocked.
+	// We don't recommend to put a short value (i.e. 1 microsecond), because it can generate a bottleneck in your application.
+	RetryPeriod time.Duration
+	// Timeout sets the limit of time that the service can take to increase the threshould.
+	Timeout time.Duration
+	// Service is responsible to check the health of an specific service (can be a microservice, database or any external/internal application).
+	// It implements [Pingable] interface.
+	Service Pingable
 }
 
-/* NewGrelayConfig create config for grelay with these values:
-
-- RetryTimePeriod: 10s
-
-- ServiveTimeout: 10s
-
-- ServiceThreshould: 10 times
-*/
-func NewGrelayConfig() Configuration {
-	return Configuration{
-		retryTimePeriod:   10 * time.Second,
-		serviceTimeout:    10 * time.Second,
-		serviceThreshould: 10,
-		service:           nil,
-		withGo:            true,
-	}
-}
-
-/* WithRetryTimePeriod sets the retry time period when the state is OPEN.
-
-ATTENTION: Do not put a really short time (EX: 1 microsecond) to not lock a lot your application
-*/
-func (c Configuration) WithRetryTimePeriod(t time.Duration) Configuration {
-	c.retryTimePeriod = t
-	return c
-}
-
-// WithServiceTimeout sets the limit of time that the service can take to increase the threashould
-func (c Configuration) WithServiceTimeout(t time.Duration) Configuration {
-	c.serviceTimeout = t
-	return c
-}
-
-// WithServiceThreshould sets the limit of threshould to change the state to OPEN
-func (c Configuration) WithServiceThreshould(ts int64) Configuration {
-	c.serviceThreshould = ts
-	return c
-}
-
-// WithGrelayService sets the service that is responsible for ping to the server when the state is OPEN
-func (c Configuration) WithGrelayService(service GrelayChecker) Configuration {
-	c.service = service
-	return c
-}
-
-// WithGo is responsible to execute in a goroutine your call function. If get ServiceTimeout, grelay will return instead of hold your call.
-func (c Configuration) WithGo() Configuration {
-	c.withGo = true
-	return c
+// DefaultConfiguration is a default configuration for a service.
+var DefaultConfiguration = Configuration{
+	RetryPeriod: 10 * time.Second,
+	Timeout:     10 * time.Second,
+	Threshould:  10,
+	Service:     nil,
+	WithGo:      true,
 }

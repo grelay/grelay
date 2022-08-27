@@ -38,7 +38,7 @@ func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, er
 }
 
 func (g *grelayServiceImpl) monitoring() {
-	for range time.Tick(g.config.retryTimePeriod) {
+	for range time.Tick(g.config.RetryPeriod) {
 		g.monitoringState()
 	}
 }
@@ -53,7 +53,7 @@ func (g *grelayServiceImpl) monitoringState() {
 			go g.checkService(checkerChannel)
 
 			g.mu.RLock()
-			t := time.NewTimer(g.config.serviceTimeout)
+			t := time.NewTimer(g.config.Timeout)
 			g.mu.RUnlock()
 			defer t.Stop()
 
@@ -83,7 +83,7 @@ func (g *grelayServiceImpl) monitoringState() {
 	go g.checkService(checkerChannel)
 
 	g.mu.RLock()
-	t := time.NewTimer(g.config.serviceTimeout)
+	t := time.NewTimer(g.config.Timeout)
 	g.mu.RUnlock()
 	defer t.Stop()
 
@@ -110,7 +110,7 @@ func (g *grelayServiceImpl) checkService(c chan<- bool) {
 	defer close(c)
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	if err := g.config.service.Ping(); err != nil {
+	if err := g.config.Service.Ping(); err != nil {
 		c <- false
 		return
 	}

@@ -49,13 +49,3 @@ func (g *grelayImpl) CreateRequest() GrelayRequest {
 		Mu:          &sync.RWMutex{},
 	}
 }
-
-// func NewGrelayConfig() gr.GrelayConfig {
-// 	return gr.NewGrelayConfig()
-// }
-
-// func NewGrelayService(c Configuration) GrelayService {
-// 	return GrelayService{
-// 		gs: gr.NewGrelayService(c),
-// 	}
-// }

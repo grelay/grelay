@@ -12,8 +12,8 @@ import (
 )
 
 func TestGrelayRequestEnqueueShouldIncludeInList(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithRetryTimePeriod(500 * time.Millisecond)
+	c := DefaultConfiguration
+	c.RetryPeriod = 500 * time.Millisecond
 	s := NewGrelayService(c)
 	m := map[string]GrelayService{
 		"test": s,
@@ -30,7 +30,7 @@ func TestGrelayRequestEnqueueShouldIncludeInList(t *testing.T) {
 }
 
 func TestGrelayRequestEnqueueShouldNotIncludeInList(t *testing.T) {
-	c := NewGrelayConfig()
+	c := DefaultConfiguration
 	s := NewGrelayService(c)
 	m := map[string]GrelayService{
 		"test": s,

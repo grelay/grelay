@@ -28,18 +28,18 @@ func (s *myService2) Ping() error {
 
 func main() {
 	service1 := &myService{}
-	config1 := grelay.NewGrelayConfig()
-	config1 = config1.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
-	config1 = config1.WithGrelayService(service1)
-	config1 = config1.WithServiceTimeout(500 * time.Millisecond) // Limit timeout to 0.5s, if pass of that, increase threshould
-	config1 = config1.WithServiceThreshould(1)                   // Set the number of threshould allowed.
+	config1 := grelay.DefaultConfiguration
+	config1.RetryPeriod = 5 * time.Second // Each 5s, check if service is ok
+	config1.Service = service1
+	config1.Timeout = 500 * time.Millisecond // Limit timeout to 0.5s, if 0.5s hits, increase threshould
+	config1.Threshould = 1
 
 	service2 := &myService2{}
-	config2 := grelay.NewGrelayConfig()
-	config2 = config2.WithRetryTimePeriod(5 * time.Second) // Each 5s, check if service is ok
-	config2 = config2.WithGrelayService(service2)
-	config2 = config2.WithServiceTimeout(1 * time.Second) // Limit timeout to 1s, if pass of that, increase threshould
-	config2 = config2.WithServiceThreshould(5)
+	config2 := grelay.DefaultConfiguration
+	config2.RetryPeriod = 5 * time.Second // Each 5s, check if service is ok
+	config2.Service = service2
+	config2.Timeout = 1 * time.Second // Limit timeout to 1s, if 1s hits, increase threshould
+	config2.Threshould = 5
 
 	// services that grelay will manage
 	services := map[string]grelay.GrelayService{

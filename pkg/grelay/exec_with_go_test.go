@@ -10,7 +10,7 @@ import (
 )
 
 func TestGrelayExecWithGoWithClosedState(t *testing.T) {
-	c := NewGrelayConfig()
+	c := DefaultConfiguration
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.Closed,
@@ -29,7 +29,7 @@ func TestGrelayExecWithGoWithClosedState(t *testing.T) {
 }
 
 func TestGrelayExecWithGoWithOpenState(t *testing.T) {
-	c := NewGrelayConfig()
+	c := DefaultConfiguration
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.Open,
@@ -48,7 +48,7 @@ func TestGrelayExecWithGoWithOpenState(t *testing.T) {
 }
 
 func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
-	c := NewGrelayConfig()
+	c := DefaultConfiguration
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.HalfOpen,
@@ -67,8 +67,8 @@ func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
 }
 
 func TestGrelayExecWithGoWithClosedStateWithCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithServiceThreshould(5)
+	c := DefaultConfiguration
+	c.Threshould = 5
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.Closed,
@@ -87,9 +87,9 @@ func TestGrelayExecWithGoWithClosedStateWithCurrentServiceThreshouldGratherThanS
 }
 
 func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldLessThanServiceThreshould(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithServiceThreshould(5)
-	c = c.WithServiceTimeout(5 * time.Microsecond)
+	c := DefaultConfiguration
+	c.Threshould = 5
+	c.Timeout = 5 * time.Microsecond
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.Closed,
@@ -110,9 +110,9 @@ func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThres
 }
 
 func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithServiceThreshould(5)
-	c = c.WithServiceTimeout(5 * time.Microsecond)
+	c := DefaultConfiguration
+	c.Threshould = 5
+	c.Timeout = 5 * time.Microsecond
 	g := &grelayServiceImpl{
 		config:                   c,
 		state:                    states.Closed,

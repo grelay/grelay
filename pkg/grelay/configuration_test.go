@@ -1,61 +1,92 @@
-package grelay
+package grelay_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/grelay/grelay/pkg/grelay"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEmptyGrelayConfig(t *testing.T) {
-	c := NewGrelayConfig()
-
-	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
-	assert.True(t, c.withGo)
+func TestConfiguration(t *testing.T) {
+	type output struct {
+		WithGo      bool
+		Threshould  int64
+		RetryPeriod time.Duration
+		Timeout     time.Duration
+		Service     grelay.Pingable
+	}
+	type testCase struct {
+		name string
+		in   grelay.Configuration
+		out  output
+	}
+	tests := []testCase{
+		{
+			name: "should return default configuration when uses the DefaultConfiguration",
+			in:   grelay.DefaultConfiguration,
+			out: output{
+				RetryPeriod: 10 * time.Second,
+				Timeout:     10 * time.Second,
+				Threshould:  10,
+				Service:     nil,
+				WithGo:      true,
+			},
+		},
+		{
+			name: "should return custom configuration when changes the DefaultConfiguration",
+			in: createCustomConfigurationFromDefaultConfiguration(grelay.Configuration{
+				RetryPeriod: 5 * time.Second,
+				Timeout:     7 * time.Second,
+				Service:     nil,
+				Threshould:  5,
+				WithGo:      false,
+			}),
+			out: output{
+				RetryPeriod: 5 * time.Second,
+				Timeout:     7 * time.Second,
+				Service:     nil,
+				Threshould:  5,
+				WithGo:      false,
+			},
+		},
+		{
+			name: "should return custom configuration when creates a new Configuration",
+			in: grelay.Configuration{
+				RetryPeriod: 5 * time.Second,
+				Timeout:     7 * time.Second,
+				Service:     nil,
+				Threshould:  5,
+				WithGo:      false,
+			},
+			out: output{
+				RetryPeriod: 5 * time.Second,
+				Timeout:     7 * time.Second,
+				Service:     nil,
+				Threshould:  5,
+				WithGo:      false,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.in.RetryPeriod, tt.out.RetryPeriod)
+			assert.Equal(t, tt.in.Timeout, tt.out.Timeout)
+			assert.Equal(t, tt.in.Threshould, tt.out.Threshould)
+			assert.Equal(t, tt.in.Service, tt.out.Service)
+			assert.Equal(t, tt.in.WithGo, tt.out.WithGo)
+		})
+	}
 }
 
-func TestEmptyGrelayConfigWithRetryTimePeriod(t *testing.T) {
-	c := NewGrelayConfig().WithRetryTimePeriod(20 * time.Second)
+func createCustomConfigurationFromDefaultConfiguration(custom grelay.Configuration) grelay.Configuration {
+	config := grelay.DefaultConfiguration
 
-	assert.Equal(t, c.retryTimePeriod, 20*time.Second, "RetryTimePeriod should be 20 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
-}
+	config.Service = custom.Service
+	config.RetryPeriod = custom.RetryPeriod
+	config.Threshould = custom.Threshould
+	config.Timeout = custom.Timeout
+	config.WithGo = custom.WithGo
 
-func TestEmptyGrelayConfigWithServiceTimeout(t *testing.T) {
-	c := NewGrelayConfig().WithServiceTimeout(20 * time.Second)
-
-	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 20*time.Second, "ServiceTimeout should be 20 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
-}
-
-func TestEmptyGrelayConfigWithServiceThreshould(t *testing.T) {
-	c := NewGrelayConfig().WithServiceThreshould(20)
-
-	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(20), "ServiceThreshould should be 20 with default value")
-}
-
-func TestEmptyGrelayConfigWithServiceThreshouldAndWithServiceTimeout(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithServiceThreshould(20)
-	c = c.WithServiceTimeout(20 * time.Second)
-
-	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 20*time.Second, "ServiceTimeout should be 10 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(20), "ServiceThreshould should be 20 with default value")
-}
-
-func TestEmptyGrelayConfigWithGo(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithGo()
-
-	assert.Equal(t, c.retryTimePeriod, 10*time.Second, "RetryTimePeriod should be 10 sec with default value")
-	assert.Equal(t, c.serviceTimeout, 10*time.Second, "ServiceTimeout should be 10 sec with default value")
-	assert.Equal(t, c.serviceThreshould, int64(10), "ServiceThreshould should be 10 with default value")
-	assert.True(t, c.withGo)
+	return config
 }

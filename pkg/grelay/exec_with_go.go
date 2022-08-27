@@ -15,7 +15,7 @@ func (e grelayExecWithGo) exec(service GrelayService, f func() (interface{}, err
 	go e.makeCall(gs, f, callDone)
 
 	gs.mu.RLock()
-	t := time.NewTimer(gs.config.serviceTimeout)
+	t := time.NewTimer(gs.config.Timeout)
 	gs.mu.RUnlock()
 	defer t.Stop()
 
@@ -26,7 +26,7 @@ func (e grelayExecWithGo) exec(service GrelayService, f func() (interface{}, err
 		gs.mu.Unlock()
 
 		gs.mu.RLock()
-		if gs.currentServiceThreshould >= gs.config.serviceThreshould {
+		if gs.currentServiceThreshould >= gs.config.Threshould {
 			gs.mu.RUnlock()
 
 			gs.mu.Lock()
@@ -52,7 +52,7 @@ func (g grelayExecWithGo) makeCall(service GrelayService, f func() (interface{},
 		c <- callResponse{nil, errs.ErrGrelayStateOpened}
 		return
 	}
-	if gs.currentServiceThreshould >= gs.config.serviceThreshould {
+	if gs.currentServiceThreshould >= gs.config.Threshould {
 		gs.mu.RUnlock()
 
 		gs.mu.Lock()
