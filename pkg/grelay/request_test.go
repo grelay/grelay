@@ -118,7 +118,7 @@ func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *t
 
 func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutShouldReturnErrGrelayServiceTimedout(t *testing.T) {
 	config := DefaultConfiguration
-	config.Timeout = 10 * time.Millisecond
+	config.Timeout = 11 * time.Millisecond
 	sMock := NewGrelayService(config, mockService{})
 
 	m := map[string]*Service{
@@ -129,7 +129,7 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 		Mu:          &sync.RWMutex{},
 	}
 	gr2 = gr2.Enqueue("test", func() (interface{}, error) {
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(12 * time.Millisecond)
 		return nil, nil
 	})
 
