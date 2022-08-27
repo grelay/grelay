@@ -7,7 +7,7 @@ import (
 	"github.com/grelay/grelay/internal/states"
 )
 
-type GrelayService interface {
+type Service interface {
 	exec(func() (interface{}, error)) (interface{}, error)
 }
 
@@ -24,7 +24,7 @@ type callResponse struct {
 	err error
 }
 
-func NewGrelayService(c Configuration) GrelayService {
+func NewGrelayService(c Configuration) Service {
 	g := &grelayServiceImpl{
 		config: c,
 		state:  states.Closed,

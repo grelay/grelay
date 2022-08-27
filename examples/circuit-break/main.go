@@ -28,7 +28,7 @@ func main() {
 	config.Threshould = 5            // Set the number of threshould allowed.
 
 	// services that grelay will manage
-	services := map[string]grelay.GrelayService{
+	services := map[string]grelay.Service{
 		serviceTag: grelay.NewGrelayService(config),
 	}
 

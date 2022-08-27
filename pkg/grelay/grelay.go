@@ -17,7 +17,7 @@ type Grelay interface {
 }
 
 type grelayImpl struct {
-	mapServices map[string]GrelayService
+	mapServices map[string]Service
 }
 
 /* NewGrelay creates a grelay config using a map of string:GrelayService
@@ -38,7 +38,7 @@ EX:
 	g := NewGrelay(m)
 
 */
-func NewGrelay(m map[string]GrelayService) Grelay {
+func NewGrelay(m map[string]Service) Grelay {
 	return &grelayImpl{
 		mapServices: m,
 	}

@@ -42,7 +42,7 @@ func main() {
 	config2.Threshould = 5
 
 	// services that grelay will manage
-	services := map[string]grelay.GrelayService{
+	services := map[string]grelay.Service{
 		serviceTag:  grelay.NewGrelayService(config1),
 		service2Tag: grelay.NewGrelayService(config2),
 	}

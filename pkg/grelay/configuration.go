@@ -31,7 +31,6 @@ type Configuration struct {
 	// Timeout sets the limit of time that the service can take to increase the threshould.
 	Timeout time.Duration
 	// Service is responsible to check the health of an specific service (can be a microservice, database or any external/internal application).
-	// It implements [Pingable] interface.
 	Service Pingable
 }
 

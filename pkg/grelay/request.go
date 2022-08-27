@@ -43,7 +43,7 @@ type GrelayRequest interface {
 type GrelayRequestFunc func() (interface{}, error)
 
 type GrelayRequestImpl struct {
-	MapServices map[string]GrelayService
+	MapServices map[string]Service
 	QueueFuncs  []GrelayRequestFunc
 
 	Mu *sync.RWMutex
