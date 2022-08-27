@@ -145,9 +145,9 @@ func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllR
 	sMock.mu.Unlock()
 
 	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
-	sMock.mu.Lock()
+	sMock2.mu.Lock()
 	sMock2.state = states.Open
-	sMock.mu.Unlock()
+	sMock2.mu.Unlock()
 
 	m := map[string]*Service{
 		"test":  sMock,
