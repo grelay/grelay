@@ -1,6 +1,7 @@
 package grelay
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -11,10 +12,12 @@ import (
 
 func TestGrelayExecWithGoWithClosedState(t *testing.T) {
 	c := DefaultConfiguration
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.Closed,
 		currentServiceThreshould: 0,
+
+		mu: &sync.RWMutex{},
 	}
 	gExec := grelayExecWithGo{}
 	_, err := gExec.exec(g, func() (interface{}, error) {
@@ -30,10 +33,12 @@ func TestGrelayExecWithGoWithClosedState(t *testing.T) {
 
 func TestGrelayExecWithGoWithOpenState(t *testing.T) {
 	c := DefaultConfiguration
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.Open,
 		currentServiceThreshould: 0,
+
+		mu: &sync.RWMutex{},
 	}
 	gExec := grelayExecWithGo{}
 	_, err := gExec.exec(g, func() (interface{}, error) {
@@ -49,10 +54,12 @@ func TestGrelayExecWithGoWithOpenState(t *testing.T) {
 
 func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
 	c := DefaultConfiguration
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.HalfOpen,
 		currentServiceThreshould: 0,
+
+		mu: &sync.RWMutex{},
 	}
 	gExec := grelayExecWithGo{}
 	_, err := gExec.exec(g, func() (interface{}, error) {
@@ -69,10 +76,12 @@ func TestGrelayExecWithGoWithHalfOpenState(t *testing.T) {
 func TestGrelayExecWithGoWithClosedStateWithCurrentServiceThreshouldGratherThanServiceThreshould(t *testing.T) {
 	c := DefaultConfiguration
 	c.Threshould = 5
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.Closed,
 		currentServiceThreshould: 6,
+
+		mu: &sync.RWMutex{},
 	}
 	gExec := grelayExecWithGo{}
 	_, err := gExec.exec(g, func() (interface{}, error) {
@@ -90,10 +99,12 @@ func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThres
 	c := DefaultConfiguration
 	c.Threshould = 5
 	c.Timeout = 5 * time.Microsecond
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.Closed,
 		currentServiceThreshould: 3,
+
+		mu: &sync.RWMutex{},
 	}
 
 	gExec := grelayExecWithGo{}
@@ -113,10 +124,12 @@ func TestGrelayExecWithGoWithClosedStateWithServiceTimeoutAndCurrentServiceThres
 	c := DefaultConfiguration
 	c.Threshould = 5
 	c.Timeout = 5 * time.Microsecond
-	g := &grelayServiceImpl{
+	g := &Service{
 		config:                   c,
 		state:                    states.Closed,
 		currentServiceThreshould: 4,
+
+		mu: &sync.RWMutex{},
 	}
 
 	gExec := grelayExecWithGo{}

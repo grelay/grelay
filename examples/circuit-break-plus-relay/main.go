@@ -38,7 +38,7 @@ func main() {
 	config2.Threshould = 5
 
 	// services that grelay will manage
-	services := map[string]grelay.Service{
+	services := map[string]*grelay.Service{
 		serviceTag:  grelay.NewGrelayService(config1, &myService{}),
 		service2Tag: grelay.NewGrelayService(config2, &myService2{}),
 	}
@@ -63,7 +63,7 @@ func main() {
 
 		val, err := gr.Exec()
 		if err != nil {
-			fmt.Println(fmt.Sprintf("error: %s", err.Error()))
+			fmt.Printf("error: %s\n", err.Error())
 			continue
 		}
 		fmt.Println(val.(myResponse).name)

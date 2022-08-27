@@ -43,7 +43,7 @@ type GrelayRequest interface {
 type GrelayRequestFunc func() (interface{}, error)
 
 type GrelayRequestImpl struct {
-	MapServices map[string]Service
+	MapServices map[string]*Service
 	QueueFuncs  []GrelayRequestFunc
 
 	Mu *sync.RWMutex
@@ -54,6 +54,7 @@ func (gr GrelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) Gre
 	service, ok := gr.MapServices[s]
 	gr.Mu.RUnlock()
 
+	// TODO Remove zap and return an error
 	if !ok {
 		logger, _ := zap.NewProduction()
 		sugar := logger.Sugar()

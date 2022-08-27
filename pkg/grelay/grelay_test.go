@@ -5,17 +5,19 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
+type mockService struct{}
+
+func (m mockService) Ping() error {
+	return nil
+}
+
 func TestGrelayEnqueueWithOneItemInQueueShouldReturnOneItem(t *testing.T) {
-	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, nil)
+	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
 
-	sMock2 := new(GrelayServiceMock)
-	sMock2.On("exec", mock.Anything).Return(nil, nil)
-
-	m := map[string]Service{
+	m := map[string]*Service{
 		"test":  sMock,
 		"test2": sMock2,
 	}
@@ -30,13 +32,10 @@ func TestGrelayEnqueueWithOneItemInQueueShouldReturnOneItem(t *testing.T) {
 }
 
 func TestGrelayEnqueueWithTwoItemsInQueueShouldReturnTwoItems(t *testing.T) {
-	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, nil)
+	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
 
-	sMock2 := new(GrelayServiceMock)
-	sMock2.On("exec", mock.Anything).Return(nil, nil)
-
-	m := map[string]Service{
+	m := map[string]*Service{
 		"test":  sMock,
 		"test2": sMock2,
 	}
@@ -53,16 +52,11 @@ func TestGrelayEnqueueWithTwoItemsInQueueShouldReturnTwoItems(t *testing.T) {
 }
 
 func TestGrelayEnqueueTwoDifferentGrelays(t *testing.T) {
-	sMock := new(GrelayServiceMock)
-	sMock.On("exec", mock.Anything).Return(nil, nil)
+	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock3 := NewGrelayService(DefaultConfiguration, mockService{})
 
-	sMock2 := new(GrelayServiceMock)
-	sMock2.On("exec", mock.Anything).Return(nil, nil)
-
-	sMock3 := new(GrelayServiceMock)
-	sMock3.On("exec", mock.Anything).Return(nil, nil)
-
-	m := map[string]Service{
+	m := map[string]*Service{
 		"test":  sMock,
 		"test2": sMock2,
 		"test3": sMock3,

@@ -9,8 +9,8 @@ import (
 
 type grelayExecWithGo struct{}
 
-func (e grelayExecWithGo) exec(service Service, f func() (interface{}, error)) (interface{}, error) {
-	gs := service.(*grelayServiceImpl)
+func (e grelayExecWithGo) exec(service *Service, f func() (interface{}, error)) (interface{}, error) {
+	gs := service
 	callDone := make(chan callResponse, 1)
 	go e.makeCall(gs, f, callDone)
 
@@ -43,8 +43,8 @@ func (e grelayExecWithGo) exec(service Service, f func() (interface{}, error)) (
 	}
 }
 
-func (g grelayExecWithGo) makeCall(service Service, f func() (interface{}, error), c chan<- callResponse) {
-	gs := service.(*grelayServiceImpl)
+func (g grelayExecWithGo) makeCall(service *Service, f func() (interface{}, error), c chan<- callResponse) {
+	gs := service
 	defer close(c)
 	gs.mu.RLock()
 	if string(gs.state) == string(states.Open) || string(gs.state) == string(states.HalfOpen) {

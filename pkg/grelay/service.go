@@ -7,17 +7,13 @@ import (
 	"github.com/grelay/grelay/internal/states"
 )
 
-type Service interface {
-	exec(func() (interface{}, error)) (interface{}, error)
-}
-
-type grelayServiceImpl struct {
+type Service struct {
 	state                    string
 	currentServiceThreshould int64
 	config                   Configuration
 	service                  Pingable
 
-	mu sync.RWMutex
+	mu *sync.RWMutex
 }
 
 type callResponse struct {
@@ -25,29 +21,31 @@ type callResponse struct {
 	err error
 }
 
-func NewGrelayService(cfg Configuration, service Pingable) Service {
-	g := &grelayServiceImpl{
+func NewGrelayService(cfg Configuration, service Pingable) *Service {
+	g := &Service{
 		config:  cfg,
 		state:   states.Closed,
 		service: service,
+
+		mu: &sync.RWMutex{},
 	}
 	go g.monitoring()
 	return g
 }
 
-func (g *grelayServiceImpl) exec(f func() (interface{}, error)) (interface{}, error) {
+func (g *Service) exec(f func() (interface{}, error)) (interface{}, error) {
 	return getGrelayExec(g.config).exec(g, f)
 }
 
-func (g *grelayServiceImpl) monitoring() {
+func (g *Service) monitoring() {
 	for range time.Tick(g.config.RetryPeriod) {
 		g.monitoringState()
 	}
 }
 
-func (g *grelayServiceImpl) monitoringState() {
+func (g *Service) monitoringState() {
 	g.mu.RLock()
-	if string(g.state) == string(states.Closed) {
+	if g.state == states.Closed {
 		if g.currentServiceThreshould > 0 {
 			g.mu.RUnlock()
 
@@ -108,7 +106,7 @@ func (g *grelayServiceImpl) monitoringState() {
 	}
 }
 
-func (g *grelayServiceImpl) checkService(c chan<- bool) {
+func (g *Service) checkService(c chan<- bool) {
 	defer close(c)
 	g.mu.RLock()
 	defer g.mu.RUnlock()
