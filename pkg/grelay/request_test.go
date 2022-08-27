@@ -74,7 +74,9 @@ func TestGrelayRequestExecWithOneItemInQueueShouldReturnNil(t *testing.T) {
 
 func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock.mu.Lock()
 	sMock.state = states.Open
+	sMock.mu.Unlock()
 
 	m := map[string]*Service{
 		"test": sMock,
@@ -92,7 +94,9 @@ func TestGrelayRequestExecWithOneItemOpenedInQueueShouldReturnErrGrelayAllReques
 
 func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *testing.T) {
 	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock.mu.Lock()
 	sMock.state = states.Open
+	sMock.mu.Unlock()
 
 	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
 
@@ -136,10 +140,14 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 
 func TestGrelayRequestExecWithTwoItemsBothOpenedInQueueShouldReturnErrGrelayAllRequestsOpened(t *testing.T) {
 	sMock := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock.mu.Lock()
 	sMock.state = states.Open
+	sMock.mu.Unlock()
 
 	sMock2 := NewGrelayService(DefaultConfiguration, mockService{})
+	sMock.mu.Lock()
 	sMock2.state = states.Open
+	sMock.mu.Unlock()
 
 	m := map[string]*Service{
 		"test":  sMock,
