@@ -15,6 +15,7 @@ type grelayServiceImpl struct {
 	state                    string
 	currentServiceThreshould int64
 	config                   Configuration
+	service                  Pingable
 
 	mu sync.RWMutex
 }
@@ -24,10 +25,11 @@ type callResponse struct {
 	err error
 }
 
-func NewGrelayService(c Configuration) Service {
+func NewGrelayService(cfg Configuration, service Pingable) Service {
 	g := &grelayServiceImpl{
-		config: c,
-		state:  states.Closed,
+		config:  cfg,
+		state:   states.Closed,
+		service: service,
 	}
 	go g.monitoring()
 	return g
@@ -110,7 +112,7 @@ func (g *grelayServiceImpl) checkService(c chan<- bool) {
 	defer close(c)
 	g.mu.RLock()
 	defer g.mu.RUnlock()
-	if err := g.config.Service.Ping(); err != nil {
+	if err := g.service.Ping(); err != nil {
 		c <- false
 		return
 	}

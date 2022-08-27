@@ -14,7 +14,6 @@ func TestConfiguration(t *testing.T) {
 		Threshould  int64
 		RetryPeriod time.Duration
 		Timeout     time.Duration
-		Service     grelay.Pingable
 	}
 	type testCase struct {
 		name string
@@ -29,7 +28,6 @@ func TestConfiguration(t *testing.T) {
 				RetryPeriod: 10 * time.Second,
 				Timeout:     10 * time.Second,
 				Threshould:  10,
-				Service:     nil,
 				WithGo:      true,
 			},
 		},
@@ -38,14 +36,12 @@ func TestConfiguration(t *testing.T) {
 			in: createCustomConfigurationFromDefaultConfiguration(grelay.Configuration{
 				RetryPeriod: 5 * time.Second,
 				Timeout:     7 * time.Second,
-				Service:     nil,
 				Threshould:  5,
 				WithGo:      false,
 			}),
 			out: output{
 				RetryPeriod: 5 * time.Second,
 				Timeout:     7 * time.Second,
-				Service:     nil,
 				Threshould:  5,
 				WithGo:      false,
 			},
@@ -55,14 +51,12 @@ func TestConfiguration(t *testing.T) {
 			in: grelay.Configuration{
 				RetryPeriod: 5 * time.Second,
 				Timeout:     7 * time.Second,
-				Service:     nil,
 				Threshould:  5,
 				WithGo:      false,
 			},
 			out: output{
 				RetryPeriod: 5 * time.Second,
 				Timeout:     7 * time.Second,
-				Service:     nil,
 				Threshould:  5,
 				WithGo:      false,
 			},
@@ -73,7 +67,6 @@ func TestConfiguration(t *testing.T) {
 			assert.Equal(t, tt.in.RetryPeriod, tt.out.RetryPeriod)
 			assert.Equal(t, tt.in.Timeout, tt.out.Timeout)
 			assert.Equal(t, tt.in.Threshould, tt.out.Threshould)
-			assert.Equal(t, tt.in.Service, tt.out.Service)
 			assert.Equal(t, tt.in.WithGo, tt.out.WithGo)
 		})
 	}
@@ -82,7 +75,6 @@ func TestConfiguration(t *testing.T) {
 func createCustomConfigurationFromDefaultConfiguration(custom grelay.Configuration) grelay.Configuration {
 	config := grelay.DefaultConfiguration
 
-	config.Service = custom.Service
 	config.RetryPeriod = custom.RetryPeriod
 	config.Threshould = custom.Threshould
 	config.Timeout = custom.Timeout

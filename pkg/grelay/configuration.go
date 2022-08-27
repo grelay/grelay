@@ -31,7 +31,7 @@ type Configuration struct {
 	// Timeout sets the limit of time that the service can take to increase the threshould.
 	Timeout time.Duration
 	// Service is responsible to check the health of an specific service (can be a microservice, database or any external/internal application).
-	Service Pingable
+	// Service Pingable
 }
 
 // DefaultConfiguration is a default configuration for a service.
@@ -39,6 +39,5 @@ var DefaultConfiguration = Configuration{
 	RetryPeriod: 10 * time.Second,
 	Timeout:     10 * time.Second,
 	Threshould:  10,
-	Service:     nil,
 	WithGo:      true,
 }
