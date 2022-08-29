@@ -129,7 +129,7 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 		Mu:          &sync.RWMutex{},
 	}
 	gr2 = gr2.Enqueue("test", func() (interface{}, error) {
-		time.Sleep(12 * time.Millisecond)
+		time.Sleep(11 * time.Millisecond)
 		return nil, nil
 	})
 
