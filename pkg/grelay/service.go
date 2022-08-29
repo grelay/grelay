@@ -49,18 +49,22 @@ func (g *Service) monitoringState() {
 		if g.currentServiceThreshould > 0 {
 			g.mu.RUnlock()
 
+			g.mu.RLock()
+			timeout := time.NewTimer(g.config.Timeout)
+			g.mu.RUnlock()
+			defer timeout.Stop()
+
 			checkerChannel := make(chan bool, 1)
 			go g.checkService(checkerChannel)
 
-			g.mu.RLock()
-			t := time.NewTimer(g.config.Timeout)
-			g.mu.RUnlock()
-			defer t.Stop()
-
 			select {
-			case <-t.C:
+			case <-timeout.C:
 				return
 			case ok := <-checkerChannel:
+				if !timeout.Stop() {
+					<-timeout.C
+					return
+				}
 				if !ok {
 					return
 				}
