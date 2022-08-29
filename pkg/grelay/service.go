@@ -79,21 +79,29 @@ func (g *Service) monitoringState() {
 	g.state = states.HalfOpen
 	g.mu.Unlock()
 
+	g.mu.RLock()
+	timeout := time.NewTimer(g.config.Timeout)
+	g.mu.RUnlock()
+	defer timeout.Stop()
+
 	checkerChannel := make(chan bool, 1)
 	go g.checkService(checkerChannel)
 
-	g.mu.RLock()
-	t := time.NewTimer(g.config.Timeout)
-	g.mu.RUnlock()
-	defer t.Stop()
-
 	select {
-	case <-t.C:
+	case <-timeout.C:
 		g.mu.Lock()
 		g.state = states.Open
 		g.mu.Unlock()
 		return
 	case ok := <-checkerChannel:
+		if !timeout.Stop() {
+			<-timeout.C
+			g.mu.Lock()
+			g.state = states.Open
+			g.mu.Unlock()
+			return
+		}
+
 		g.mu.Lock()
 		defer g.mu.Unlock()
 		if !ok {
