@@ -1,4 +1,4 @@
-package grelay
+package errs
 
 import "errors"
 

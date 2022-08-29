@@ -1,6 +1,9 @@
+// Package grelay provides a circuit breaker implementation for a set of services (microservices, database and internal/external applications).
 package grelay
 
-import "sync"
+import (
+	"sync"
+)
 
 // Grelay is an interface that have Enqueue function
 type Grelay interface {
@@ -14,7 +17,7 @@ type Grelay interface {
 }
 
 type grelayImpl struct {
-	mapServices map[string]GrelayService
+	mapServices map[string]*Service
 }
 
 /* NewGrelay creates a grelay config using a map of string:GrelayService
@@ -35,15 +38,15 @@ EX:
 	g := NewGrelay(m)
 
 */
-func NewGrelay(m map[string]GrelayService) Grelay {
+func NewGrelay(m map[string]*Service) Grelay {
 	return &grelayImpl{
 		mapServices: m,
 	}
 }
 
 func (g *grelayImpl) CreateRequest() GrelayRequest {
-	return grelayRequestImpl{
-		mapServices: g.mapServices,
-		mu:          &sync.RWMutex{},
+	return GrelayRequestImpl{
+		MapServices: g.mapServices,
+		Mu:          &sync.RWMutex{},
 	}
 }

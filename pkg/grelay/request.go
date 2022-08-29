@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/grelay/grelay/internal/errs"
 	"go.uber.org/zap"
 )
 
@@ -39,52 +40,53 @@ type GrelayRequest interface {
 	Exec() (interface{}, error)
 }
 
-type grelayRequestFunc func() (interface{}, error)
+type GrelayRequestFunc func() (interface{}, error)
 
-type grelayRequestImpl struct {
-	mapServices map[string]GrelayService
-	QueueFuncs  []grelayRequestFunc
+type GrelayRequestImpl struct {
+	MapServices map[string]*Service
+	QueueFuncs  []GrelayRequestFunc
 
-	mu *sync.RWMutex
+	Mu *sync.RWMutex
 }
 
-func (gr grelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) GrelayRequest {
-	gr.mu.RLock()
-	service, ok := gr.mapServices[s]
-	gr.mu.RUnlock()
+func (gr GrelayRequestImpl) Enqueue(s string, f func() (interface{}, error)) GrelayRequest {
+	gr.Mu.RLock()
+	service, ok := gr.MapServices[s]
+	gr.Mu.RUnlock()
 
+	// TODO Remove zap and return an error
 	if !ok {
 		logger, _ := zap.NewProduction()
 		sugar := logger.Sugar()
-		gr.mu.RLock()
-		defer gr.mu.RUnlock()
-		sugar.Warn(fmt.Sprintf("grelay not found service with %s key", s), zap.Any("grelay_services", gr.mapServices))
+		gr.Mu.RLock()
+		defer gr.Mu.RUnlock()
+		sugar.Warn(fmt.Sprintf("grelay not found service with %s key", s), zap.Any("grelay_services", gr.MapServices))
 		return gr
 	}
 
-	gr.mu.Lock()
+	gr.Mu.Lock()
 	if gr.QueueFuncs == nil {
-		gr.QueueFuncs = []grelayRequestFunc{}
+		gr.QueueFuncs = []GrelayRequestFunc{}
 	}
 	gr.QueueFuncs = append(gr.QueueFuncs, func() (interface{}, error) {
 		return service.exec(f)
 	})
-	gr.mu.Unlock()
+	gr.Mu.Unlock()
 
-	gr.mu.RLock()
-	defer gr.mu.RUnlock()
+	gr.Mu.RLock()
+	defer gr.Mu.RUnlock()
 	return gr
 }
 
-func (gr grelayRequestImpl) Exec() (interface{}, error) {
-	gr.mu.RLock()
-	defer gr.mu.RUnlock()
-	for _, f := range gr.QueueFuncs {
+func (gr2 GrelayRequestImpl) Exec() (interface{}, error) {
+	gr2.Mu.RLock()
+	defer gr2.Mu.RUnlock()
+	for _, f := range gr2.QueueFuncs {
 		value, err := f()
-		if errors.Is(err, ErrGrelayStateOpened) {
+		if errors.Is(err, errs.ErrGrelayStateOpened) {
 			continue
 		}
 		return value, err
 	}
-	return nil, ErrGrelayAllRequestsOpened
+	return nil, errs.ErrGrelayAllRequestsOpened
 }

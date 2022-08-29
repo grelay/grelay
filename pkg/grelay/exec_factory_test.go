@@ -7,8 +7,7 @@ import (
 )
 
 func TestGrelayFactoryShouldReturnGrelayExecWithGo(t *testing.T) {
-	c := NewGrelayConfig()
-	c = c.WithGo()
+	c := DefaultConfiguration
 
 	g := getGrelayExec(c)
 
@@ -16,8 +15,8 @@ func TestGrelayFactoryShouldReturnGrelayExecWithGo(t *testing.T) {
 }
 
 func TestGrelayFactoryShouldReturnGrelayExecDefault(t *testing.T) {
-	c := NewGrelayConfig()
-	c.withGo = false
+	c := DefaultConfiguration
+	c.WithGo = false
 
 	g := getGrelayExec(c)
 
