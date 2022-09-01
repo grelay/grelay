@@ -94,7 +94,7 @@ func TestMonitoringWhenStateClosedAndPingServiceTimedoutShouldKeepThreshould(t *
 	c.RetryPeriod = 10 * time.Millisecond
 	c.Timeout = 10 * time.Millisecond
 
-	s := createGrelayService(50*time.Millisecond, nil)
+	s := createGrelayService(5*time.Second, nil)
 
 	g := &Service{
 		config:                   c,

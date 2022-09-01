@@ -132,7 +132,7 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 		// We need to use a big gap here between the timeout configuration (10 - 50 = 40ms of gap).
 		// It is necessary because there is no documented guaranty how precise time is in Go.
 		// We can't assume any precision (especially low) about time.
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(5 * time.Second)
 		return nil, nil
 	})
 
