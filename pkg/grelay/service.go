@@ -1,6 +1,7 @@
 package grelay
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -45,26 +46,22 @@ func (g *Service) monitoring() {
 
 func (g *Service) monitoringState() {
 	g.mu.RLock()
+	ctx, cancel := context.WithTimeout(context.Background(), g.config.Timeout)
+	g.mu.RUnlock()
+	defer cancel()
+
+	g.mu.RLock()
 	if g.state == states.Closed {
 		if g.currentServiceThreshould > 0 {
 			g.mu.RUnlock()
-
-			g.mu.RLock()
-			timeout := time.NewTimer(g.config.Timeout)
-			g.mu.RUnlock()
-			defer timeout.Stop()
 
 			checkerChannel := make(chan bool, 1)
 			go g.checkService(checkerChannel)
 
 			select {
-			case <-timeout.C:
+			case <-ctx.Done():
 				return
 			case ok := <-checkerChannel:
-				if !timeout.Stop() {
-					<-timeout.C
-					return
-				}
 				if !ok {
 					return
 				}
@@ -83,29 +80,16 @@ func (g *Service) monitoringState() {
 	g.state = states.HalfOpen
 	g.mu.Unlock()
 
-	g.mu.RLock()
-	timeout := time.NewTimer(g.config.Timeout)
-	g.mu.RUnlock()
-	defer timeout.Stop()
-
 	checkerChannel := make(chan bool, 1)
 	go g.checkService(checkerChannel)
 
 	select {
-	case <-timeout.C:
+	case <-ctx.Done():
 		g.mu.Lock()
 		g.state = states.Open
 		g.mu.Unlock()
 		return
 	case ok := <-checkerChannel:
-		if !timeout.Stop() {
-			<-timeout.C
-			g.mu.Lock()
-			g.state = states.Open
-			g.mu.Unlock()
-			return
-		}
-
 		g.mu.Lock()
 		defer g.mu.Unlock()
 		if !ok {

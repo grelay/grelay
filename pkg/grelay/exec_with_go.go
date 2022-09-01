@@ -1,7 +1,7 @@
 package grelay
 
 import (
-	"time"
+	"context"
 
 	"github.com/grelay/grelay/internal/errs"
 	"github.com/grelay/grelay/internal/states"
@@ -11,26 +11,22 @@ type grelayExecWithGo struct{}
 
 func (e grelayExecWithGo) exec(service *Service, f func() (interface{}, error)) (interface{}, error) {
 	service.mu.RLock()
-	timeout := time.NewTimer(service.config.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), service.config.Timeout)
 	service.mu.RUnlock()
-	defer timeout.Stop()
+	defer cancel()
 
 	callDone := make(chan callResponse, 1)
-	go e.makeCall(service, f, callDone)
+	go e.makeCall(ctx, service, f, callDone)
 
 	select {
-	case <-timeout.C:
+	case <-ctx.Done():
 		return nil, e.processTimeout(service)
 	case r := <-callDone:
-		if !timeout.Stop() {
-			<-timeout.C
-			return nil, e.processTimeout(service)
-		}
 		return r.i, r.err
 	}
 }
 
-func (g grelayExecWithGo) makeCall(service *Service, f func() (interface{}, error), c chan<- callResponse) {
+func (g grelayExecWithGo) makeCall(ctx context.Context, service *Service, f func() (interface{}, error), c chan<- callResponse) {
 	defer close(c)
 	service.mu.RLock()
 	if service.state == states.Open || service.state == states.HalfOpen {

@@ -118,7 +118,7 @@ func TestGrelayRequestExecWithTwoItemsWithFirstOpenedInQueueShouldReturnNil(t *t
 
 func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutShouldReturnErrGrelayServiceTimedout(t *testing.T) {
 	config := DefaultConfiguration
-	config.Timeout = 11 * time.Millisecond
+	config.Timeout = 10 * time.Millisecond
 	sMock := NewGrelayService(config, mockService{})
 
 	m := map[string]*Service{
@@ -129,7 +129,10 @@ func TestGrelayRequestExecWithOneItemInQueueReturningErrGrelayServiceTimedoutSho
 		Mu:          &sync.RWMutex{},
 	}
 	gr2 = gr2.Enqueue("test", func() (interface{}, error) {
-		time.Sleep(11 * time.Millisecond)
+		// We need to use a big gap here between the timeout configuration (10 - 50 = 40ms of gap).
+		// It is necessary because there is no documented guaranty how precise time is in Go.
+		// We can't assume any precision (especially low) about time.
+		time.Sleep(50 * time.Millisecond)
 		return nil, nil
 	})
 

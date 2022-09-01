@@ -89,12 +89,13 @@ func TestMonitoringWhenStateClosedAndCurrentServiceThreshouldEqualZeroShouldKeep
 	assert.Equal(t, int64(0), g.currentServiceThreshould)
 }
 
-func TestMonitoringWhenStateClosedAndServiceNotOKShouldKeepThreshould(t *testing.T) {
+func TestMonitoringWhenStateClosedAndPingServiceTimedoutShouldKeepThreshould(t *testing.T) {
 	c := DefaultConfiguration
-	c.RetryPeriod = 7 * time.Millisecond
+	c.RetryPeriod = 10 * time.Millisecond
+	c.Timeout = 10 * time.Millisecond
 
-	s := createGrelayService(10*time.Millisecond, nil)
-	c.Timeout = 2 * time.Millisecond
+	s := createGrelayService(50*time.Millisecond, nil)
+
 	g := &Service{
 		config:                   c,
 		state:                    states.Closed,
